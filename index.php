@@ -1,14 +1,44 @@
-<?php
+<?php 
+/*
+ * Include necessary files
+*/
+include_once 'sys/core/init.inc.php';
 
-/* shit */
+/*
+ * Load the ConsultSite
+*/
+$consult = new ConsultSite($dbo, 0);
+
+/*
+if ( is_object ($consult) )
+{
+	echo "
+", var_dump($consult), "
+";
+}
+*/
+
+/*
+ * Set up the page title and CSS files
+*/
+$page_title = "Carmichael Lynch Consultant Site";
+$css_files = array('reset.css','style.css', 'admin.css', 'ajax.css');
+
+/*
+ * Include the header
+*/
+include_once 'assets/common/header.inc.php';
+
+
+
+/*
+ * Display the site HTML
+*/
+echo $consult->buildSite();
+
+/*
+ * Include the footer
+*/
+include_once 'assets/common/footer.inc.php';
 
 ?>
-
-<!DOCTYPE unspecified PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html><head>
-
-</head>
-<body>
-BULLSHIT
-</body>
-</html>
