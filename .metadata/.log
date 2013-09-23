@@ -1,0 +1,65 @@
+!SESSION 2013-09-23 10:28:03.065 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.6.0_51
+java.vendor=Apple Inc.
+BootLoader constants: OS=macosx, ARCH=x86, WS=cocoa, NL=en_US
+Framework arguments:  -showlocation -showlocation -keyring /Users/todd.flom/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86 -showlocation -data /Users/todd.flom/Desktop/Sites/Consultant Site/consult_site -showlocation -keyring /Users/todd.flom/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.ui 4 4 2013-09-23 10:28:06.768
+!MESSAGE Unable to find Action Set: org.eclipse.wst.server.ui.internal.webbrowser.actionSet
+
+!ENTRY org.eclipse.jface 2 0 2013-09-23 10:28:08.350
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2013-09-23 10:28:08.350
+!MESSAGE A conflict occurred for COMMAND+SHIFT+Z:
+Binding(COMMAND+SHIFT+Z,
+	ParameterizedCommand(Command(org.eclipse.php.debug.ui.commands.Inspect,Inspect,
+		Inspect result of evaluating selected text,
+		Category(org.eclipse.debug.ui.category.run,Run/Debug,Run/Debug command category,true),
+		,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.dialogAndWindow,,,system)
+Binding(COMMAND+SHIFT+Z,
+	ParameterizedCommand(Command(org.eclipse.ui.edit.redo,Redo,
+		Redo the last operation,
+		Category(org.eclipse.ui.category.edit,Edit,null,true),
+		ActionHandler(RetargetAction(redo)),
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.dialogAndWindow,,cocoa,system)
+
+!ENTRY org.eclipse.ui.workbench 2 0 2013-09-23 10:28:08.358
+!MESSAGE A handler conflict occurred.  This may disable some commands.
+!SUBENTRY 1 org.eclipse.ui.workbench 2 0 2013-09-23 10:28:08.358
+!MESSAGE Conflict for 'org.eclipse.dltk.ui.edit.text.script.refactor.quickMenu':
+HandlerActivation(commandId=org.eclipse.dltk.ui.edit.text.script.refactor.quickMenu,
+	handler=org.eclipse.dltk.internal.ui.actions.refactoring.RefactorActionGroup$3@177daaa,
+	expression=AndExpression(ActivePartExpression(org.eclipse.php.internal.ui.explorer.PHPExplorerPart@6fd560),WorkbenchWindowExpression(org.eclipse.ui.internal.WorkbenchWindow@5facbd)),sourcePriority=1064960)
+HandlerActivation(commandId=org.eclipse.dltk.ui.edit.text.script.refactor.quickMenu,
+	handler=org.eclipse.dltk.internal.ui.actions.refactoring.RefactorActionGroup$3@1b4de03,
+	expression=AndExpression(ActivePartExpression(org.eclipse.php.internal.ui.explorer.PHPExplorerPart@6fd560),WorkbenchWindowExpression(org.eclipse.ui.internal.WorkbenchWindow@5facbd)),sourcePriority=1064960)
+
+!ENTRY org.eclipse.core.net 1 0 2013-09-23 10:28:09.099
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.zend.php.zendserver.deployment.ui 4 0 2013-09-23 10:28:19.273
+!MESSAGE Address already in use
+!STACK 0
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.PlainSocketImpl.socketBind(PlainSocketImpl.java:521)
+	at java.net.PlainSocketImpl.bind(PlainSocketImpl.java:414)
+	at java.net.ServerSocket.bind(ServerSocket.java:326)
+	at java.net.ServerSocket.<init>(ServerSocket.java:192)
+	at java.net.ServerSocket.<init>(ServerSocket.java:104)
+	at org.zend.php.zendserver.deployment.ui.chrome.SocketCommandListener.openServerSocket(SocketCommandListener.java:69)
+	at org.zend.php.zendserver.deployment.ui.chrome.SocketCommandListener$1.run(SocketCommandListener.java:39)
+	at java.lang.Thread.run(Thread.java:680)
+
+!ENTRY org.eclipse.ui 4 4 2013-09-23 10:31:13.579
+!MESSAGE Invalid preference page path: HTML Syntax
+
+!ENTRY org.eclipse.ui 4 4 2013-09-23 10:31:13.579
+!MESSAGE Invalid preference page path: XML Syntax
