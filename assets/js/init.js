@@ -7,7 +7,8 @@ jQuery(function($){
 	var processFile = "assets/inc/ajax.inc.php";
 	
 	// Functions to manipulate the modal window
-	var fx = {
+	var fx = {	
+						
 		// Checks for a modal window and returns it, or
         // else creates a new one and returns that
         "initModal" : function() {
@@ -96,8 +97,8 @@ jQuery(function($){
             // Fades out the modal window, then removes
             // it from the DOM entirely
             
-            if ($(".modal-window").length) {
-	            $(".modal-window")
+            if ($("#login_modal").length) {
+	            $("#login_modal")
 		            .fadeOut("fast", function() {
 		                $(this).remove();
 		            }
@@ -308,6 +309,90 @@ jQuery(function($){
 	};
 	
     
+	
+	
+	
+	/*
+	 * NEW CONTENT
+	 */
+	
+	
+	
+	
+	
+	$("#login_modal input[type=submit]").click(function(event) {
+		
+		event.preventDefault();
+		var formData = $(this).parents("form").serialize();
+		submitVal = $(this).val();
+		
+		/* 
+		var action = $("#form1").attr('action');
+		var form_data = {
+			username: $("#username").val(),
+			password: $("#password").val(),
+			is_ajax: 1
+		};
+		*/
+		
+		$.ajax({
+			type: "POST",
+			url: processFile,
+			data: formData,
+			success: function(response)
+			{
+			    if(response == 1) { // data converts it to an int
+					//$("#form1").slideUp('slow', function() {
+					//    window.location.href = 'newwork.php';
+				   // });
+					fx.boxout();
+					loadLandingPage();
+			    } else {
+			    	$("#message").html("You have entered an invalid username or password.");	
+			    }
+			}
+		});
+		
+	});
+	
+	
+
+	
+	
+	function loadLandingPage() {
+		
+	    // Loads the event data from the DB
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action=landingPage_view",
+            success: function(data){
+					console.log('data = ' + data);
+            		$('#content').html(data); 
+                },
+            error: function(msg) {
+                    modal.append(msg);
+                }
+        });
+       
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+	 * END NEW CONTENT
+	 */
+	
+	
+	
+	
+	
+	
 
 		
 	
@@ -1829,10 +1914,10 @@ jQuery(function($){
         var butt = box.find('#footer_toggle_butt a');
             
         if (butt.hasClass("active")) {
-        	TweenMax.to(box, .2, {top:"0px", ease:Power1.easeOut});
+        	//TweenMax.to(box, .2, {top:"0px", ease:Power1.easeOut});
         } else {
            	var targetHeight = box.parent().height() - 58;
-        	TweenMax.to(box, .2, {top:targetHeight, ease:Power1.easeOut});
+        	//TweenMax.to(box, .2, {top:targetHeight, ease:Power1.easeOut});
         }   
         $("#step_view_container").css({'height': box.parent().height() - 58 });
 	});

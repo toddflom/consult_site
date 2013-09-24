@@ -34,7 +34,7 @@ include_once 'assets/common/header.inc.php';
 /*
  * Display the site HTML
 */
-echo $consult->buildSite();
+echo $consult->buildLoginPage();
 
 /*
  * Include the footer
