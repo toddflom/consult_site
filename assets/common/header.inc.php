@@ -36,7 +36,7 @@
 				<div id="header_nav">
 					<a class="nav_item active" href="#">NEW PROJECTS</a> / 
 					<a class="nav_item" href="#">IN THE NEWS</a> / 
-					<a class="nav_item" href="#">THOUGHT LEADERSHIP</a></div>
+					<a class="nav_item" href="#">THOUGHT LEADERSHIP</a>
 				</div>
 			</div>
 		</div>

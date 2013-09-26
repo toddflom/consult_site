@@ -159,12 +159,120 @@ class ConsultSite extends DB_Connect
 	
 	public function displayLandingPage() {
 		
-		error_log("got here");
+		$html = "<div class='horizontalRule'></div>";
 		
-		return '<div id="someclass">Ppiouydpiuqwhd piuwehfpiuwehfpiwuefh piwfhuipwue fhpwieufh piweufhwipeufhweiufh wieufh</div>';
+		$greeting = $this->_loadGreeting();
+		
+		$html .= "<div id='greeting'>" . $greeting[0]['copy'];
+
+		$html .= "<div id='signature'>Sincerely,<img src='" 
+				. $greeting[0]['signatureImg'] 
+				. "' /></div></div>";
+
+		
+		
+		$html .= "<div id='featured_projects'>";
+		
+		$html .= "<div class='featured_bar'><div class='title'>New Projects</div><div class='cta'><a href='#'>View All</a></div></div>";
+		
+		
+		$featured = $this->_loadFeaturedProjects();
+		
+		$tot_featured = count($featured);
+		
+		$ds = "<div class='featured_proj'>";
+		$de = "</div>";
+		
+		for ($i = 0; $i < $tot_featured; $i++) {
+			
+			$link = "<img class='thumb' src='" . $featured[$i]['thumbnail_url'] . "' />"
+					. "<div class='client_name'>" .  $featured[$i]['client'] . "</div>"
+					. "<div class='tag_line'>" .  $featured[$i]['tagline'] . "</div>"
+					. "<div class='copy'>" .  $featured[$i]['copy'] . "</div>"
+					. "<div class='cta'><a href='" .  $featured[$i]['cta_url'] . "'>Learn More</a></div>";
+		
+			if($i % 2 == 1) {
+				$html .= $ds . $link . "</div><div id='clearance' style='clear:both;'></div>";
+			} else {
+				$html .= $ds . $link . $de;
+			}
+		
+		}
+		
+		$html .= "</div><!-- end of featured_projects -->";
+		
+		return $html;
 	}
 	
 	
+	
+	private function _loadGreeting() {
+		$sql = "SELECT `copy`, `signatureImg` FROM `greeting` LIMIT 1;";
+		
+		try
+		{
+			$stmt = $this->db->prepare($sql);
+			 		
+			$stmt->execute();
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt->closeCursor();
+		
+			return $results;
+		}
+		catch ( Exception $e )
+		{
+			die ( $e->getMessage() );
+		}
+	}
+	
+	
+	private function _loadFeaturedProjects() {
+		
+		/*
+		SELECT dog.id,dog.name,breed.name AS breed
+		FROM dog,breed
+		WHERE dog.breed_id = breed.id
+		ORDER BY dog.name ASC;
+		
+		+----+--------+---------+
+		| id | name   | breed   |
+		+----+--------+---------+
+		|  3 | Buster | Terrier |
+		|  2 | Jake   | Hounds  |
+		|  1 | Max    | Hounds  |
+		+----+--------+---------+
+		*/
+		
+		$sql = "SELECT `client_project`.`clientproj_id`, 
+				`client_project`.`client`, 
+				`client_project`.`tagline`, 
+				`client_project`.`copy`, 
+				`client_project`.`cta_url`, 
+				`project`.`thumbnail_url` 
+				FROM 
+				`client_project`, `project` 
+				WHERE 
+				`client_project`.`clientproj_id` = `project`.`clientproj_id` 
+				AND 
+				`project`.`is_featured` = 1;";
+		
+		try
+		{
+			$stmt = $this->db->prepare($sql);
+		
+			$stmt->execute();
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt->closeCursor();
+		
+			return $results;
+		}
+		catch ( Exception $e )
+		{
+			die ( $e->getMessage() );
+		}
+		
+		
+	}
 	
 	 
 	
