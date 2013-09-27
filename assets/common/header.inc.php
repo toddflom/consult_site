@@ -34,9 +34,9 @@
 			<div id="header_wrapper">
 				<a class="clLogo" href="http://carmichaellynch.com/"></a>
 				<div id="header_nav">
-					<a class="nav_item active" href="#">NEW PROJECTS</a> / 
-					<a class="nav_item" href="#">IN THE NEWS</a> / 
-					<a class="nav_item" href="#">THOUGHT LEADERSHIP</a>
+					<a class="nav_item projects_view" href="#">NEW PROJECTS</a>&nbsp;&nbsp;/&nbsp;&nbsp; 
+					<a class="nav_item news_view" href="#">IN THE NEWS</a>&nbsp;&nbsp;/&nbsp;&nbsp; 
+					<a class="nav_item thought_view" href="#">THOUGHT LEADERSHIP</a>
 				</div>
 			</div>
 		</div>

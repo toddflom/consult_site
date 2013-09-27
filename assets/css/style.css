@@ -100,7 +100,6 @@ h1, h2, h3, h4, h5, h6 {
 	font-weight: normal;
 }
 
-
 .clearfix:after {
    content: " "; /* Older browser do not support empty content */
    visibility: hidden;
@@ -109,17 +108,15 @@ h1, h2, h3, h4, h5, h6 {
    clear: both;
 }
 
-
-#pagewrapper {
+.pagewrapper {
 	width:960px;
 	margin: 0 auto;
-	
-	
+	overflow:auto;
 	min-height: 100%;
 	height: auto !important;
 	height: 100%;
-	margin: 0 auto -4em;
-
+	margin: 0 auto;
+	padding-bottom: 60px;
 }
 
 #header {
@@ -151,6 +148,7 @@ h1, h2, h3, h4, h5, h6 {
 	line-height: 40px; 
 	color:#898989;
 	font-size:60%;
+	letter-spacing:2px;
 }
 
 #header_nav a {
@@ -160,8 +158,6 @@ h1, h2, h3, h4, h5, h6 {
 #header_nav a.active {
 	color:#ffffff;
 }
-
-
 
 div.horizontalRule {
     min-height: 1px;
@@ -341,11 +337,37 @@ a.view_pdf {
 #greeting {
 	margin-bottom: 30px;
 }
+
 #featured_projects {
 	width:598px;
+	float: left;
 }
 
-#featured_projects>.featured_bar {
+#featured_articles,
+#featured_news {
+	width:315px;
+	float:right;
+}
+
+#featured_news {
+	margin-top:60px;
+}
+
+#featured_projects,
+#featured_articles,
+#featured_news,
+#featured_projects>.featured_proj,
+#featured_articles>.featured_article,
+#featured_news>.featured_news_item
+ {
+	display:block;
+}
+
+
+#featured_projects>.featured_bar, 
+#featured_articles>.articles_bar,
+#featured_news>.news_bar,
+.header_bar {
 	font-family: FuturaBold,Arial,Helvetica,sans-serif;
 	width: 100%;
 	background-color: #2c2c2c;
@@ -355,54 +377,116 @@ a.view_pdf {
 	line-height: 38px;
 	vertical-align: middle;
 	text-transform: uppercase;
-	margin-bottom: 15px;
+	margin-bottom: 20px;
 }
 
-#featured_projects>.featured_bar>.title {
+#featured_projects>.featured_bar>.title, 
+#featured_articles>.articles_bar>.title,
+#featured_news>.news_bar>.title,
+.header_bar>.title {
 	float:left;
 	margin-left: 15px;
 }
 
-#featured_projects>.featured_bar>.cta {
+#featured_projects>.featured_bar>.cta,
+#featured_articles>.articles_bar>.cta,
+#featured_news>.news_bar>.cta {
 	float:right;
 	background-color: #464646;
 	padding:0 15px;
 	color: #000000;
 }
 
-#featured_projects>.featured_bar>.cta a {
+#featured_projects>.featured_bar>.cta a,
+#featured_articles>.articles_bar>.cta a,
+#featured_news>.news_bar>.cta a {
 	color: #000000;
 }
 
 #featured_projects>.featured_proj {
 	width:268px;
 	float:left;
-/*	margin-right:20px;  */
 }
 
-#featured_projects>.featured_proj>.client_name {
+#featured_projects>.featured_proj>.client_name,
+#featured_articles>.featured_article>.source,
+#featured_news>.featured_news_item>.source {
 	font-family: FuturaBold,Arial,Helvetica,sans-serif;
 	margin: 20px 0 15px 0;
 }
 
-#featured_projects>.featured_proj>.tag_line {
+#featured_projects>.featured_proj>.tag_line,
+#featured_news>.featured_news_item>.title {
 	font-style:italic;
 	margin-bottom: 20px;
 }
 
-#featured_projects>.featured_proj>.copy {
+#featured_projects>.featured_proj>.copy,
+#featured_articles>.featured_article>.title,
+#featured_news>.featured_news_item>.copy {
 	font-size: 90%;
 	margin-bottom: 15px;
 	color:#acacac;
 }
 
-#featured_projects>.featured_proj>.cta {
-	font-family: Arial,Helvetica,sans-serif;
+#featured_projects>.featured_proj>.cta,
+#featured_articles>.featured_article>.name,
+#featured_news>.featured_news_item>.cta {
+	font-family: DINRoundProMedium,Arial,Helvetica,sans-serif;
 	font-size: 70%;
 	margin-bottom: 15px;
+}
+
+
+#featured_projects>.featured_proj>.cta,
+#featured_news>.featured_news_item>.cta {
 	text-decoration: underline;
 }
+
 #featured_projects>#clearance {
 	margin-bottom: 30px;
 }
+
+#featured_projects>.featured_proj.col_left,
+#featured_articles>.featured_article.col_left {
+    float:left;
+}
+
+#featured_projects>.featured_proj.col_right,
+#featured_articles>.featured_article.col_right {
+    float:right;
+}
+
+#featured_articles>.featured_article {
+	width:125px;
+	padding: 0 15px;
+}
+
+#featured_news>.featured_news_item {
+	padding: 0 15px;
+}
+
+#projects>.client_project div.horizontalRule {
+    min-height: 1px;
+    clear:both; 
+	border-bottom:1px solid #2c2c2c;
+    height:1px; 
+    margin:0 0 28px 0;
+}
+
+#projects>.client_project>.client_info {
+	width:300px;
+	float:right;
+}
+
+#projects>.client_project>.project_video {
+	float:left;
+}
+
+
+
+
+
+
+
 

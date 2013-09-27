@@ -29,7 +29,12 @@ $actions = array(
 		'landingPage_view' => array(
 				'object' => 'ConsultSite',
 				'method' => 'displayLandingPage'
+		),
+		'projectsPage_view' => array(
+				'object' => 'ConsultSite',
+				'method' => 'displayProjectsPage'
 		)
+		
 		
 );
 
