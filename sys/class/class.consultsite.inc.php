@@ -269,10 +269,6 @@ class ConsultSite extends DB_Connect
 		
 		$html = "<div class='header_bar'><div class='title'>New Projects</div></div>";
 		
-		
-		
-		
-		
 		$html .= "<div id='projects'>";
 				
 		$projects = $this->_loadProjects();
@@ -288,7 +284,7 @@ class ConsultSite extends DB_Connect
 			
 			$link = "";
 			
-			error_log("this_index = " . $this_index . "  last_index = " . $last_index);
+			// error_log("this_index = " . $this_index . "  last_index = " . $last_index);
 			
 			if ($this_index != $last_index) {
 		
@@ -315,7 +311,7 @@ class ConsultSite extends DB_Connect
 			
 			$link .= "<div class='project_video'>";
 			
-			error_log($projects[$i]['video_url']);
+			// error_log($projects[$i]['video_url']);
 				
 			if	($projects[$i]['video_url'] != 'NULL') {
 				$link .= "<iframe class='vimeo' src='http://player.vimeo.com/video/" 
@@ -341,12 +337,163 @@ class ConsultSite extends DB_Connect
 		
 		$html .= "</div><!-- end of projects -->";
 		
-		
-		
-
-		
 		return $html;
 	}
+	
+	
+	
+	public function displayNewsPage() {
+	
+		$html = "<div class='header_bar'><div class='title'>In the News</div></div>";
+	
+		$html .= "<div id='news'>";
+	
+		$news = $this->_loadNews();
+	
+		$tot_news = count($news);
+		
+		// $ds = "<div class='client_project'>";
+		$de = "</div>";
+			
+		for ($i = 0; $i < $tot_news; $i++) {
+	
+			$link = "<img class='thumbnail' src='" . $news[$i]['thumbnail_url'] . "' />"
+					. "<div class='source'>" .  $news[$i]['source'] . "</div>"
+					. "<div class='title'>" .  $news[$i]['article_title'] . "</div>"
+					. "<div class='cta'><a href='" .  $news[$i]['article_url'] . "'>Learn More</a></div>";
+			
+			
+			if ($news[$i]['pdf_url'] != NULL) {
+				$link .= "<div class='pdf'><a href='" .  $news[$i]['pdf_url'] . "' target='_blank'>Download PDF</a></div>";
+	
+			}
+			
+			//error_log("i = " . $i . " mod 3 = " . $i % 3);
+			
+			if($i % 3 == 2) {
+				$html .=  "<div class='news_item col_right'>" . $link . "</div><div id='clearance' style='clear:both;'></div>";
+			} else {
+				$html .= "<div class='news_item col_left'>" . $link . $de;
+			}
+				
+			// $html .= $ds . $link . $de;
+	
+		}
+	
+		$html .= "</div><!-- end of news -->";
+	
+		return $html;
+	}
+	
+	
+	
+	
+
+	public function displayThoughtPage() {
+	
+		$html = "<div class='header_bar'><div class='title'>Thought Leadership</div></div>";
+	
+		$html .= "<div id='thought_leadership'>";
+	
+		$thoughts = $this->_loadThoughts();
+	
+		$tot_thoughts = count($thoughts);
+	
+		// $ds = "<div class='client_project'>";
+		$de = "</div>";
+			
+		for ($i = 0; $i < $tot_thoughts; $i++) {
+	
+			$link = "<div class='image'><img class='photo' src='" . $thoughts[$i]['photo_url'] . "' /></div>"
+					. "<div class='info'>"
+					. "<div class='source'>" .  $thoughts[$i]['source'] . "</div>"
+					. "<div class='title'>" .  $thoughts[$i]['title'] . "</div>"
+					. "<div class='name'>" .  $thoughts[$i]['name'] . "</div>"
+					. "</div>";
+											
+								
+			error_log("i = " . $i . " mod 3 = " . $i % 3);
+				
+			if($i % 2 == 1) {
+				$html .=  "<div class='thought col_right'>" . $link . "</div><div id='clearance' style='clear:both;'></div>";
+			} else {
+				$html .= "<div class='thought col_left'>" . $link . $de;
+			}
+	
+			// $html .= $ds . $link . $de;
+	
+		}
+	
+		$html .= "</div><!-- end of thought_leadership -->";
+	
+		return $html;
+	}
+	
+	
+	
+
+	private function _loadThoughts() {
+	
+		$sql = "SELECT `article`.`id`,
+		 `article`.`source`,
+		 `article`.`title`,
+		 `article`.`article_url`,
+		 `person`.`name`,
+		 `person`.`photo_url`
+		 FROM
+		 `article`, `person`
+		 WHERE
+		 `article`.`person_id` = `person`.`person_id`
+		ORDER BY 
+		`article`.`id` ASC;";
+	
+		try
+		{
+			$stmt = $this->db->prepare($sql);
+	
+			$stmt->execute();
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt->closeCursor();
+	
+			return $results;
+		}
+		catch ( Exception $e )
+		{
+			die ( $e->getMessage() );
+		}
+	}
+	
+	
+	
+	
+
+	private function _loadNews() {
+	
+		$sql = "SELECT `id`,
+				`source`,
+				`article_title`,
+				`article_url`,
+				`pdf_url`,
+				`thumbnail_url`
+		 FROM
+		 `news_item;";
+	
+		try
+		{
+			$stmt = $this->db->prepare($sql);
+	
+			$stmt->execute();
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt->closeCursor();
+	
+			return $results;
+		}
+		catch ( Exception $e )
+		{
+			die ( $e->getMessage() );
+		}
+	}
+	
 	
 	
 	

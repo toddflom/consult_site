@@ -387,10 +387,62 @@ jQuery(function($){
 		event.preventDefault();
 		
 		$(this).addClass("active");
+		$(this).siblings().removeClass('active');
+
 		$.ajax({
 		    type: "POST",
 		    url: processFile,
 		    data: "action=projectsPage_view",
+		    success: function(data){
+					// console.log('data = ' + data);
+		    		$('#content').html(data); 
+		        },
+		    error: function(msg) {
+		            modal.append(msg);
+		        }
+		});
+	});
+	
+	
+	
+	
+	
+	
+	$("#header_nav>.nav_item.news_view").live("click", function(event){
+		 
+		event.preventDefault();
+
+		$(this).addClass("active");
+		$(this).siblings().removeClass('active');
+		
+		$.ajax({
+		    type: "POST",
+		    url: processFile,
+		    data: "action=newsPage_view",
+		    success: function(data){
+					// console.log('data = ' + data);
+		    		$('#content').html(data); 
+		        },
+		    error: function(msg) {
+		            modal.append(msg);
+		        }
+		});
+	});
+	
+	
+
+	
+	$("#header_nav>.nav_item.thought_view").live("click", function(event){
+		 
+		event.preventDefault();
+
+		$(this).addClass("active");
+		$(this).siblings().removeClass('active');
+		
+		$.ajax({
+		    type: "POST",
+		    url: processFile,
+		    data: "action=thoughtPage_view",
 		    success: function(data){
 					// console.log('data = ' + data);
 		    		$('#content').html(data); 

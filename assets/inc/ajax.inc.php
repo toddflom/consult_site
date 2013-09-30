@@ -33,6 +33,14 @@ $actions = array(
 		'projectsPage_view' => array(
 				'object' => 'ConsultSite',
 				'method' => 'displayProjectsPage'
+		),
+		'newsPage_view' => array(
+				'object' => 'ConsultSite',
+				'method' => 'displayNewsPage'
+		),
+		'thoughtPage_view' => array(
+				'object' => 'ConsultSite',
+				'method' => 'displayThoughtPage'
 		)
 		
 		
