@@ -1,1 +1,16 @@
 @CHARSET "UTF-8";
+
+
+
+a.admin {
+  background-color:#EAEAEA;
+  border:1px solid #ffffff;
+  color:black;
+  display:inline-block;
+  font-size:12px;
+  font-weight:bold;
+  margin:4px 0 20px 0;
+  padding:4px;
+  text-decoration:none;
+  text-transform:uppercase;
+}

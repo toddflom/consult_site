@@ -41,6 +41,10 @@ $actions = array(
 		'thoughtPage_view' => array(
 				'object' => 'ConsultSite',
 				'method' => 'displayThoughtPage'
+		),
+		'edit_greeting' => array(
+				'object' => 'AdminSite',
+				'method' => 'saveGreeting'
 		)
 		
 		
@@ -62,9 +66,9 @@ if ( isset($actions[$_POST['action']]) )
 	/*
 	 * Check for an ID and sanitize it if found
 	*/
-	if ( isset($_POST['step_id']) )
+	if ( isset($_POST['greeting_id']) )
 	{
-		$id = (int) $_POST['step_id'];
+		$id = (int) $_POST['greeting_id'];
 	}
 	else if (isset($_POST['position_id']))
 	{

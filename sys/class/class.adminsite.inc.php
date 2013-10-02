@@ -1,7 +1,7 @@
 <?php
 
 	/**
-	 * Builds and manipulates a CL Consultant Website
+	 * Builds and manipulates a CL Consultant Administration Website
 	 * 
 	 * @author Todd Flom
 	 * @copyright 2013 Carmichael Lynch
@@ -9,7 +9,7 @@
 	 */
 
 
-class ConsultSite extends DB_Connect
+class AdminSite extends DB_Connect
 {
 	
 	
@@ -33,154 +33,9 @@ class ConsultSite extends DB_Connect
 		*/
 		parent::__construct($dbo);
 	}
+		
 	
-	
-	/**
-	 * Returns HTML markup to display the initial Consultant Site View
-	 *
-	 * @return string the process HTML markup
-	 */
-	
-	public function buildLoginPage()
-	{
-			
-		// admin is not logged in
-		$html = '<div id="content">'
-				. '<div class="horizontalRule"></div>'
-				. '<div class="spacer"></div>'
-				. '<div class="spacer"></div>'
-				. '<div id="login_modal">'
-				. '<h1>Please Log In</h1>'
-				. '<p style="line-spacing:40px">&nbsp;</p>'
-				. '<form id="form1" name="form1" action="assets/inc/process.inc.php" method="post">'
-				. '<p>'
-				. '<label for="username">Username: </label>'
-				. '<input type="text" name="username" id="username" />'
-				. '</p>'
-				. '<p>'
-				. '<label for="password">Password: </label>'
-				. '<input type="password" name="password" id="password" />'
-				. '</p>'
-				. '<p id="message">&nbsp;</p>'
-				. '<input type="hidden" name="action" value="process_user" />'
-				. '<input type="submit" id="login" name="login" value="user_login" />'
-				. '</p>'
-				. '</form>'
-				. '<div id="message"></div>'
-				. '</div>'
-				. '</div>';
-		
-		
-		
-		
-/*
-<div id="content" class='login'>
 
-<form action="assets/inc/process.inc.php" method="post">
-<fieldset>
-<legend>Please Log In</legend>
-<label for="uname">Username</label>
-<input type="text" name="uname" id="uname" value="" />
-<label for="pword">Password</label>
-<input type="password" name="pword" id="pword" value="" />
-<input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>" />
-<input type="hidden" name="action" value="user_login" />
-<input type="submit" name="login_submit" value="Log In" />
-or <a href="./">cancel</a>
-</fieldset>
-</form>
-</div><!-- end #content -->
-
-*/
-
-				
-	}
-	
-	
-	
-	public function processUser() {
-		
-		/*
-		 * Exit if the action isn't set properly
-		*/
-		if ( $_POST['action']!='process_user' )
-		{
-			return "The method processSearchForm was accessed incorrectly";
-		}
-		
-		$username = htmlentities($_POST['username'], ENT_QUOTES);
-		$password = htmlentities($_POST['password'], ENT_QUOTES);
-		
-		// session_start(); // we already have a session going
-		$_SESSION['username'] = $username; // store session data
-		
-	//	error_log("username = " . $username . "   password = " . $password);
-	
-		$pass = $this->getUserPass($username);
-		
-		// error_log($pass);
-		
-		if($password == $pass)
-		{
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	
-	
-	private function getUserPass($name) {
-		
-		$sql = "SELECT `password` FROM `user_login` WHERE `name` = :name "; 
-				 
-		try
-		{
-			$stmt = $this->db->prepare($sql);
-			 
-			$stmt->bindParam(":name", $name, PDO::PARAM_INT);
-		
-			$stmt->execute();
-			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$stmt->closeCursor();
-		
-			return $results[0]['password'];
-		}
-		catch ( Exception $e )
-		{
-			die ( $e->getMessage() );
-		}
-		
-	}
-	
-	
-	
-	/**
-	 * Runs a suppiled SQL statment that has no binding variables
-	 * and returns results as an array
-	 */
-	private function _runSQL($sql)
-	{
-		try
-		{
-			$stmt = $this->db->prepare($sql);
-			 
-			$stmt->execute();
-			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$stmt->closeCursor();
-			 
-			//echo var_dump($results);
-			 
-			return $results;
-			 
-		}
-		catch ( Exception $e )
-		{
-			die ( $e->getMessage() );
-		}
-	}
-	
-	
 	
 	public function displayLandingPage() {
 		
@@ -188,12 +43,23 @@ or <a href="./">cancel</a>
 		
 		$greeting = $this->_loadGreeting();
 		
-		$html .= "<div id='greeting'>" . $greeting[0]['copy'];
+		$copy = html_entity_decode($greeting[0]['copy'], ENT_QUOTES, "utf-8" );
+		
+		$html .= "<div id='greeting_edit'><div id='greeting'>" . $copy . "</div>";
 
 		$html .= "<div id='signature'>Sincerely,<img src='" 
 				. $greeting[0]['signatureImg'] 
-				. "' /></div></div>";
+				. "' /></div>";
+		
+		$html .= '<form action="assets/inc/process.inc.php" method="post">';
+		$html .= '<input type="hidden" name="token" value="$_SESSION[token]" />';
+		$html .= '<input type="hidden" name="greeting_id" value="' . $greeting[0]['id'] . '" value="$id" />';
+   		$html .= '</form>';
+		
+		$html .= '<a class="admin" href="#">Save Edits</a></div>';
 
+	
+		
 		
 		
 		$html .= "<div id='featured_projects'>";
@@ -286,6 +152,111 @@ or <a href="./">cancel</a>
 		
 		return $html;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Validates the form and saves the greeting
+	 *
+	 * @return mixed TRUE on success, an error message on failure
+	 */
+	public function saveGreeting()
+	{
+		/*
+		 * Exit if the action isn't set properly
+		*/
+		if ( $_POST['action']!='edit_greeting' )
+		{
+			return "The method saveGreeting was accessed incorrectly";
+		}
+	
+		/*
+		 * Escape data from the form
+		*/
+		$copy = htmlentities($_POST['text'], ENT_QUOTES);
+	
+		$id = (int) $_POST['greeting_id'];
+	
+			
+		/*
+		 * If no greeting ID passed, create a new greeting
+		*/
+		if ( empty($_POST['greeting_id']) )
+		{
+			$sql = "INSERT INTO `greeting`
+                        (`copy`)
+                    VALUES
+                        (:copy)";
+		}
+	
+		/*
+		 * Update the greeting if it's being edited
+		*/
+		else
+		{
+			/*
+			 * Cast the greeting ID as an integer for security
+			*/
+			$sql = "UPDATE `greeting`
+			SET
+			`copy`=:copy
+			WHERE `id`=$id";
+		}
+			
+		/*
+		 * Execute the create or edit query after binding the data
+		*/
+		try
+		{
+			
+			error_log($sql);
+	
+			$stmt = $this->db->prepare($sql);
+			$stmt->bindParam(":copy", $copy, PDO::PARAM_STR);
+			$stmt->execute();
+			$stmt->closeCursor();
+			/*
+			 * Returns the ID of the greeting
+			*/
+			// return $this->db->lastInsertId();
+	
+			if ($id > 0) {
+				$greeting_id = $id;
+			} else {
+				$greeting_id = $this->db->lastInsertId();
+			}
+	
+			//	error_log($greeting_id, 0);
+	
+			return $greeting_id;
+	
+		}
+		catch ( Exception $e )
+		{
+			return $e->getMessage();
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -457,6 +428,8 @@ or <a href="./">cancel</a>
 	
 	
 	
+	
+	
 
 	private function _loadThoughts() {
 	
@@ -559,7 +532,7 @@ or <a href="./">cancel</a>
 	
 	
 	private function _loadGreeting() {
-		$sql = "SELECT `copy`, `signatureImg` FROM `greeting` LIMIT 1;";
+		$sql = "SELECT `id`, `copy`, `signatureImg` FROM `greeting` LIMIT 1;";
 		
 		try
 		{
@@ -671,37 +644,33 @@ or <a href="./">cancel</a>
 	}
 	
 	
-	private function _adminGreetingOptions($id)
+
+	/**
+	 * Runs a suppiled SQL statment that has no binding variables
+	 * and returns results as an array
+	 */
+	private function _runSQL($sql)
 	{
-		if ( isset($_SESSION['user']) )
+		try
 		{
-			return <<<ADMIN_OPTIONS
+			$stmt = $this->db->prepare($sql);
 	
-    <div class="department-admin-options">
-    <form action="departmentadmin.php" method="post">
-        <p>
-            <input type="submit" name="edit_department"
-                  value="Edit This Department" />
-            <input type="hidden" name="department_id"
-                  value="$id" />
-        </p>
-    </form>
-    <form action="confirmDepartmentdelete.php" method="post">
-        <p>
-            <input type="submit" name="delete_department"
-                  value="Delete This Department" />
-            <input type="hidden" name="department_id"
-                  value="$id" />
-        </p>
-    </form>
-    </div><!-- end .department-admin-options -->
-ADMIN_OPTIONS;
+			$stmt->execute();
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt->closeCursor();
+	
+			//echo var_dump($results);
+	
+			return $results;
+	
 		}
-		else
+		catch ( Exception $e )
 		{
-			return NULL;
+			die ( $e->getMessage() );
 		}
 	}
+	
+	
 	
 	
 	

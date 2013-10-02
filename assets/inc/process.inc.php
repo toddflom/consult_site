@@ -28,6 +28,16 @@ $actions = array(
 				'object' => 'ConsultSite',
 				'method' => 'processUser',
 				'header' => 'Location: ../../'
+		),
+		'user_login' => array(
+				'object' => 'Admin',
+				'method' => 'processLoginForm',
+				'header' => 'Location: ../../admin.php'
+		),
+		'user_logout' => array(
+				'object' => 'Admin',
+				'method' => 'processLogout',
+				'header' => 'Location: ../../'
 		)
 );
 
