@@ -259,7 +259,19 @@ a.view_pdf {
 	margin-bottom:30px;
 }
 
+#modal_background {
+	position:absolute;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	background-color: rgba(0, 0, 0, .1);
+	height:100%;
+	width:100%;
+}
+
 #login_modal {
+	font-family: Arial,Helvetica,sans-serif;
 	color:#000000;
     width: 300px;
     margin: 23px auto 0;

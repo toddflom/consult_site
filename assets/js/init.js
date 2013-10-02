@@ -395,6 +395,11 @@ jQuery(function($){
 	
 
 	
+	$("#header_wrapper>.clLogo").click(function(event) {
+		loadLandingPage();
+	});
+	
+	
 	
 	function loadLandingPage() {
 		
@@ -405,6 +410,7 @@ jQuery(function($){
             data: "action=landingPage_view",
             success: function(data){
 					//console.log('data = ' + data);
+            		$( "#modal_background").remove();
             		$('#content').html(data); 
             		shouldLoadFullEditor("div#greeting");
                 },
@@ -412,7 +418,6 @@ jQuery(function($){
                     modal.append(msg);
                 }
         });
-       
 	}
 	
 	

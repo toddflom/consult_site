@@ -44,7 +44,8 @@ class ConsultSite extends DB_Connect
 	public function buildLoginPage()
 	{
 		
-		$html = '<div id="content">'
+		$html = '<div id="modal_background"></div>'
+				. '<div id="content">'
 				. '<div class="horizontalRule"></div>'
 				. '<div class="spacer"></div>'
 				. '<div class="spacer"></div>'
@@ -95,11 +96,9 @@ class ConsultSite extends DB_Connect
 				
 		$html .= $this->_adminGreetingOptions($greeting[0]['id']);
 		
-		
 		$html .= "<div id='featured_projects'>";
 		
 		$html .= "<div class='featured_bar'><div class='title'>New Projects</div><div class='cta'><a href='#'>View All</a></div></div>";
-		
 		
 		$featured = $this->_loadFeaturedProjects();
 		
@@ -125,9 +124,6 @@ class ConsultSite extends DB_Connect
 		}
 		
 		$html .= "</div><!-- end of featured_projects -->";
-		
-		
-	
 		
 		$html .= "<div id='featured_articles'>";
 		
@@ -156,8 +152,6 @@ class ConsultSite extends DB_Connect
 		}
 		
 		$html .= "</div><!-- end of featured_articles -->";
-		
-		
 
 		$html .= "<div id='featured_news'>";
 		
@@ -199,7 +193,6 @@ class ConsultSite extends DB_Connect
 		$projects = $this->_loadProjects();
 				
 		$tot_projects = count($projects);
-		
 		
 		$last_index;
 		
@@ -608,6 +601,46 @@ ADMIN_OPTIONS;
 <input type="hidden" name="greeting_id" value="$id" />
 </form>
 <a class="admin" href="#">Save Edits</a></div>
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	
+	
+	
+	/**
+	 * Generates edit and delete options for a given client ID
+	 *
+	 * @param int $id the client ID to generate options for
+	 * @return string the markup for the edit/delete options
+	 */
+	private function _adminClientOptions($id)
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+    <div class="client-admin-options">
+    <form action="clientadmin.php" method="post">
+        <p>
+            <input type="submit" name="edit_client"
+                  value="Edit This Client" />
+            <input type="hidden" name="client_id"
+                  value="$id" />
+        </p>
+    </form>
+    <form action="confirmClientdelete.php" method="post">
+        <p>
+            <input type="submit" name="delete_client"
+                  value="Delete This Client" />
+            <input type="hidden" name="client_id"
+                  value="$id" />
+        </p>
+    </form>
+    </div><!-- end .client-admin-options -->
 ADMIN_OPTIONS;
 		}
 		else
