@@ -43,8 +43,7 @@ class ConsultSite extends DB_Connect
 	
 	public function buildLoginPage()
 	{
-			
-		// admin is not logged in
+		
 		$html = '<div id="content">'
 				. '<div class="horizontalRule"></div>'
 				. '<div class="spacer"></div>'
@@ -54,146 +53,47 @@ class ConsultSite extends DB_Connect
 				. '<p style="line-spacing:40px">&nbsp;</p>'
 				. '<form id="form1" name="form1" action="assets/inc/process.inc.php" method="post">'
 				. '<p>'
-				. '<label for="username">Username: </label>'
-				. '<input type="text" name="username" id="username" />'
+				. '<label for="uname">Username: </label>'
+				. '<input type="text" name="uname" id="uname" value="" />'
 				. '</p>'
 				. '<p>'
-				. '<label for="password">Password: </label>'
-				. '<input type="password" name="password" id="password" />'
+				. '<label for="pword">Password: </label>'
+				. '<input type="password" name="pword" id="pword" value="" />'
 				. '</p>'
 				. '<p id="message">&nbsp;</p>'
-				. '<input type="hidden" name="action" value="process_user" />'
-				. '<input type="submit" id="login" name="login" value="user_login" />'
+				. '<input type="hidden" name="token" value="' . $_SESSION['token'] . '" />'
+				. '<input type="hidden" name="action" value="user_login" />'
+				. '<input type="submit" name="login_submit" value="Log In" />'
 				. '</p>'
 				. '</form>'
 				. '<div id="message"></div>'
 				. '</div>'
 				. '</div>';
 		
-		
-		
-		
-/*
-<div id="content" class='login'>
-
-<form action="assets/inc/process.inc.php" method="post">
-<fieldset>
-<legend>Please Log In</legend>
-<label for="uname">Username</label>
-<input type="text" name="uname" id="uname" value="" />
-<label for="pword">Password</label>
-<input type="password" name="pword" id="pword" value="" />
-<input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>" />
-<input type="hidden" name="action" value="user_login" />
-<input type="submit" name="login_submit" value="Log In" />
-or <a href="./">cancel</a>
-</fieldset>
-</form>
-</div><!-- end #content -->
-
-*/
-
+		return $html;
 				
 	}
 	
 	
-	
-	public function processUser() {
-		
-		/*
-		 * Exit if the action isn't set properly
-		*/
-		if ( $_POST['action']!='process_user' )
-		{
-			return "The method processSearchForm was accessed incorrectly";
-		}
-		
-		$username = htmlentities($_POST['username'], ENT_QUOTES);
-		$password = htmlentities($_POST['password'], ENT_QUOTES);
-		
-		// session_start(); // we already have a session going
-		$_SESSION['username'] = $username; // store session data
-		
-	//	error_log("username = " . $username . "   password = " . $password);
-	
-		$pass = $this->getUserPass($username);
-		
-		// error_log($pass);
-		
-		if($password == $pass)
-		{
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	
-	
-	private function getUserPass($name) {
-		
-		$sql = "SELECT `password` FROM `user_login` WHERE `name` = :name "; 
-				 
-		try
-		{
-			$stmt = $this->db->prepare($sql);
-			 
-			$stmt->bindParam(":name", $name, PDO::PARAM_INT);
-		
-			$stmt->execute();
-			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$stmt->closeCursor();
-		
-			return $results[0]['password'];
-		}
-		catch ( Exception $e )
-		{
-			die ( $e->getMessage() );
-		}
-		
-	}
-	
-	
-	
-	/**
-	 * Runs a suppiled SQL statment that has no binding variables
-	 * and returns results as an array
-	 */
-	private function _runSQL($sql)
-	{
-		try
-		{
-			$stmt = $this->db->prepare($sql);
-			 
-			$stmt->execute();
-			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$stmt->closeCursor();
-			 
-			//echo var_dump($results);
-			 
-			return $results;
-			 
-		}
-		catch ( Exception $e )
-		{
-			die ( $e->getMessage() );
-		}
-	}
-	
-	
+
 	
 	public function displayLandingPage() {
 		
-		$html = "<div class='horizontalRule'></div>";
+		$html = $this->_adminGeneralOptions();
+				
+		$html .= "<div class='horizontalRule'></div>";
 		
 		$greeting = $this->_loadGreeting();
 		
-		$html .= "<div id='greeting'>" . $greeting[0]['copy'];
-
-		$html .= "<div id='signature'>Sincerely,<img src='" 
-				. $greeting[0]['signatureImg'] 
-				. "' /></div></div>";
-
+		$copy = html_entity_decode($greeting[0]['copy'], ENT_QUOTES, "utf-8" );
+		
+		$html .= "<div id='greeting_edit'><div id='greeting'>" . $copy . "</div>";
+		
+		$html .= "<div id='signature'>Sincerely,<img src='"
+				. $greeting[0]['signatureImg']
+				. "' /></div>";
+				
+		$html .= $this->_adminGreetingOptions($greeting[0]['id']);
 		
 		
 		$html .= "<div id='featured_projects'>";
@@ -559,7 +459,7 @@ or <a href="./">cancel</a>
 	
 	
 	private function _loadGreeting() {
-		$sql = "SELECT `copy`, `signatureImg` FROM `greeting` LIMIT 1;";
+		$sql = "SELECT `id`, `copy`, `signatureImg` FROM `greeting` LIMIT 1;";
 		
 		try
 		{
@@ -671,30 +571,43 @@ or <a href="./">cancel</a>
 	}
 	
 	
+	
+	private function _adminGeneralOptions()
+	{
+		/*
+		 * If the user is logged in, display admin controls
+		*/
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+	<form action="assets/inc/process.inc.php" method="post">
+        <div>
+            <input type="submit" value="Log Out" class="admin_logout" />
+            <input type="hidden" name="token"
+                value="$_SESSION[token]" />
+            <input type="hidden" name="action"
+                value="user_logout" />
+        </div>
+    </form>
+ADMIN_OPTIONS;
+		}
+	}
+	
+	
+	
+	
+	
 	private function _adminGreetingOptions($id)
 	{
 		if ( isset($_SESSION['user']) )
 		{
 			return <<<ADMIN_OPTIONS
-	
-    <div class="department-admin-options">
-    <form action="departmentadmin.php" method="post">
-        <p>
-            <input type="submit" name="edit_department"
-                  value="Edit This Department" />
-            <input type="hidden" name="department_id"
-                  value="$id" />
-        </p>
-    </form>
-    <form action="confirmDepartmentdelete.php" method="post">
-        <p>
-            <input type="submit" name="delete_department"
-                  value="Delete This Department" />
-            <input type="hidden" name="department_id"
-                  value="$id" />
-        </p>
-    </form>
-    </div><!-- end .department-admin-options -->
+<form action="assets/inc/process.inc.php" method="post">
+<input type="hidden" name="token" value="$_SESSION[token]" />
+<input type="hidden" name="greeting_id" value="$id" />
+</form>
+<a class="admin" href="#">Save Edits</a></div>
 ADMIN_OPTIONS;
 		}
 		else
@@ -702,6 +615,37 @@ ADMIN_OPTIONS;
 			return NULL;
 		}
 	}
+	
+
+	
+	
+
+	/**
+	 * Runs a suppiled SQL statment that has no binding variables
+	 * and returns results as an array
+	 */
+	private function _runSQL($sql)
+	{
+		try
+		{
+			$stmt = $this->db->prepare($sql);
+	
+			$stmt->execute();
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt->closeCursor();
+	
+			//echo var_dump($results);
+	
+			return $results;
+	
+		}
+		catch ( Exception $e )
+		{
+			die ( $e->getMessage() );
+		}
+	}
+	
+	
 	
 	
 	

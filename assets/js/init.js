@@ -320,6 +320,43 @@ jQuery(function($){
 	
 	
 	
+
+	
+	$("#greeting_edit>.admin").live("click", function(event){
+
+		event.preventDefault();
+		
+		// Sets the action for the form submission
+        var action = $(event.target).attr("name") || "edit_greeting";
+        
+        // Saves the value of the greeting_id input
+        id = $("input[name=greeting_id]").val();
+        
+        // Creates an additional param for the ID if set
+        id = ( id!=undefined ) ? "&greeting_id="+id : "";
+        
+        var data = "&text="+encodeURIComponent($("#greeting").html());
+        
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action+id + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+        
+		
+	});
+	
+	
+	
+	
+	
+	
 	$("#login_modal input[type=submit]").click(function(event) {
 		
 		event.preventDefault();
@@ -369,6 +406,7 @@ jQuery(function($){
             success: function(data){
 					//console.log('data = ' + data);
             		$('#content').html(data); 
+            		shouldLoadFullEditor("div#greeting");
                 },
             error: function(msg) {
                     modal.append(msg);
@@ -378,6 +416,38 @@ jQuery(function($){
 	}
 	
 	
+	
+	function loadFullEditor(sel) {
+		tinymce.init({
+		    selector: sel,
+		    inline: true,
+		    plugins: [
+		        "autolink lists link charmap anchor",
+		        "searchreplace visualblocks code",
+		        "insertdatetime paste"
+		    ],
+		    toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link"
+		});
+	}
+	
+	
+	function shouldLoadFullEditor(sel) {
+		
+		$.ajax( {
+		      type:'GET',
+		      url:'assets/inc/session.inc.php',
+		      success: function(data){
+		    	  if( data == "Expired" ) {
+				       return false;
+				   } else if (data == "Active" ) {
+					   loadFullEditor(sel);
+					   return true;
+				   }
+		      }
+		   }
+		);
+
+	}
 	
 	
 	

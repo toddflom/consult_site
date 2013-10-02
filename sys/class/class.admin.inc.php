@@ -45,6 +45,8 @@ class Admin extends DB_Connect
      */
     public function processLoginForm()
     {
+    	
+    	
         /*
          * Fails if the proper action was not submitted
          */
@@ -59,69 +61,106 @@ class Admin extends DB_Connect
         $uname = htmlentities($_POST['uname'], ENT_QUOTES);
         $pword = htmlentities($_POST['pword'], ENT_QUOTES);
 		
-        /*
-         * Retrieves the matching info from the DB if it exists
-        */
-        $sql = "SELECT
-        `user_id`, `user_name`, `user_pass`
-        FROM `users`
-        WHERE `user_name` = :uname LIMIT 1";
         
-	     try
-	     {
-	         $stmt = $this->db->prepare($sql);
-	         $stmt->bindParam(':uname', $uname, PDO::PARAM_STR);
-	         $stmt->execute();
-	         $user = array_shift($stmt->fetchAll());
-	         $stmt->closeCursor();
-	     }
-	     catch ( Exception $e )
-	     {
-	         die ( $e->getMessage() );
-	     }
-	
-	     /*
-	      * Fails if username doesn't match a DB entry
-	      */
-	     if ( !isset($user) )
-	     {
-	         return "No user found with that ID.";
-	     }
-	     
-	     /*
-	      * Get the hash of the user-supplied password
-	     */
-	     $hash = $this->_getSaltedHash($pword, $user['user_pass']);
-	     
-	     error_log($hash);
-	     
-	     error_log($this->testSaltedHash($pword, $user['user_pass']));
-	     
-	     /*
-	      * Checks if the hashed password matches the stored hash
-	     */
-	     if ( $user['user_pass']==$hash )
-	     {
-	     	/*
-	     	 * Stores user info in the session as an array
-	     	*/
-	     	$_SESSION['user'] = array(
-	     			'id' => $user['user_id'],
-	     			'name' => $user['user_name'],
-	     	);
-	     
-	     	return TRUE;
-	     }
-	     
-	     /*
-	      * Fails if the passwords don't match
-	     */
-	     else
-	     {
-	     	return "Your username or password is invalid.";
-	     }
+        
+        
+        error_log($uname);
+        
+        
+        if ($uname == 'admin') {
+        	
+        	// we have an admin
+ 
+        	/*
+        	 * Retrieves the matching info from the DB if it exists
+        	*/
+        	$sql = "SELECT
+        	`user_id`, `user_name`, `user_pass`
+       		 FROM `users`
+        	WHERE `user_name` = :uname LIMIT 1";
+        	
+        	try
+        	{
+        		$stmt = $this->db->prepare($sql);
+        		$stmt->bindParam(':uname', $uname, PDO::PARAM_STR);
+        		$stmt->execute();
+        		$user = array_shift($stmt->fetchAll());
+        		$stmt->closeCursor();
+        	}
+        	catch ( Exception $e )
+        	{
+        		die ( $e->getMessage() );
+        	}
+        	
+        	/*
+        	 * Fails if username doesn't match a DB entry
+        	*/
+        	if ( !isset($user) )
+        	{
+        		return "No user found with that ID.";
+        	}
+        	
+        	/*
+        	 * Get the hash of the user-supplied password
+        	*/
+        	$hash = $this->_getSaltedHash($pword, $user['user_pass']);
+        	
+        	error_log($hash);
+        	
+        	error_log($this->testSaltedHash($pword, $user['user_pass']));
+        	
+        	/*
+        	 * Checks if the hashed password matches the stored hash
+        	*/
+        	if ( $user['user_pass']==$hash )
+        	{
+        		/*
+        		 * Stores user info in the session as an array
+        		*/
+        		$_SESSION['user'] = array(
+        				'id' => $user['user_id'],
+        				'name' => $user['user_name'],
+        		);
+        	
+        		return TRUE;
+        	}
+        	
+        	/*
+        	 * Fails if the passwords don't match
+        	*/
+        	else
+        	{
+        		return "Your username or password is invalid.";
+        	}
+        	 
+        	
+        	
+        } else {
+        	
+        	// just a visitor
+      	
+        	// session_start(); // we already have a session going
+        	$_SESSION['username'] = $uname; // store session data
+        	
+        	//	error_log("username = " . $username . "   password = " . $password);
+        	
+        	$pass = $this->getUserPass($uname);
+        	
+        	error_log($pass);
+        	
+        	if($pword == $pass){
+        		return true;
+        	} else {
+        		return "Your username or password is invalid.";
+        	}
+       	
+        	
+        }       
 
     }
+    
+    
+    
     
     
     /**
@@ -131,7 +170,7 @@ class Admin extends DB_Connect
      */
     public function processLogout()
     {
-    	echo "processs logout called";
+    	// echo "processs logout called";
     	/*
     	 * Fails if the proper action was not submitted
     	*/
@@ -186,6 +225,31 @@ class Admin extends DB_Connect
     	return $this->_getSaltedHash($string, $salt);
     }
     
+    
+    
+
+    private function getUserPass($name) {
+    	 
+    	$sql = "SELECT `password` FROM `user_login` WHERE `name` = :name ";
+    	 
+    	try
+    	{
+    		$stmt = $this->db->prepare($sql);
+    		 
+    		$stmt->bindParam(":name", $name, PDO::PARAM_INT);
+    		 
+    		$stmt->execute();
+    		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    		$stmt->closeCursor();
+    		 
+    		return $results[0]['password'];
+    	}
+    	catch ( Exception $e )
+    	{
+    		die ( $e->getMessage() );
+    	}
+    	 
+    }
     
 
 }

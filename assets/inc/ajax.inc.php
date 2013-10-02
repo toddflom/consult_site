@@ -22,10 +22,14 @@ foreach ( $C as $name => $val )
  * Create a lookup array for form actions
 */
 $actions = array(
-		'process_user' => array(
-				'object' => 'ConsultSite',
-				'method' => 'processUser'
-		),		
+		'user_login' => array(
+				'object' => 'Admin',
+				'method' => 'processLoginForm'
+		),
+		'user_logout' => array(
+				'object' => 'Admin',
+				'method' => 'processLogout'
+		),
 		'landingPage_view' => array(
 				'object' => 'ConsultSite',
 				'method' => 'displayLandingPage'
