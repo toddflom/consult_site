@@ -47,8 +47,12 @@ $actions = array(
 				'method' => 'displayThoughtPage'
 		),
 		'edit_greeting' => array(
-				'object' => 'AdminSite',
+				'object' => 'Admin',
 				'method' => 'saveGreeting'
+		),
+		'edit_client' => array(
+				'object' => 'Admin',
+				'method' => 'saveClient'
 		)
 		
 		

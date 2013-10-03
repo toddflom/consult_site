@@ -251,6 +251,182 @@ class Admin extends DB_Connect
     	 
     }
     
+    
+    
+    /**
+     * Validates the form and saves the greeting
+     *
+     * @return mixed TRUE on success, an error message on failure
+     */
+    public function saveGreeting()
+    {
+    	/*
+    	 * Exit if the action isn't set properly
+    	*/
+    	if ( $_POST['action']!='edit_greeting' )
+    	{
+    		return "The method saveGreeting was accessed incorrectly";
+    	}
+
+    	/*
+    	 * Escape data from the form
+    	*/
+    	$copy = htmlentities($_POST['text'], ENT_QUOTES);
+
+    	$id = (int) $_POST['greeting_id'];
+
+
+    	/*
+    	 * If no greeting ID passed, create a new greeting
+    	*/
+    	if ( empty($_POST['greeting_id']) )
+    	{
+    		$sql = "INSERT INTO `greeting`
+    				(`copy`)
+    				VALUES
+    				(:copy)";
+    	}
+    	 
+    	/*
+    	 * Update the greeting if it's being edited
+    	*/
+    	else
+    	{
+    		/*
+    		 * Cast the greeting ID as an integer for security
+    		*/
+    		$sql = "UPDATE `greeting`
+    		SET
+    		`copy`=:copy
+    		WHERE `id`=$id";
+    	}
+
+    	/*
+    	 * Execute the create or edit query after binding the data
+    	*/
+    	try
+    	{
+    			
+    		error_log($sql);
+    			
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(":copy", $copy, PDO::PARAM_STR);
+    		$stmt->execute();
+    		$stmt->closeCursor();
+    		/*
+    		 * Returns the ID of the greeting
+    		*/
+    		// return $this->db->lastInsertId();
+    			
+    		if ($id > 0) {
+    			$greeting_id = $id;
+    		} else {
+    			$greeting_id = $this->db->lastInsertId();
+    		}
+    			
+    		//  error_log($greeting_id, 0);
+    			
+    		return $greeting_id;
+    			
+    	}
+    	catch ( Exception $e )
+    	{
+    		return $e->getMessage();
+    	}
+    }
+
+    
+
+    /**
+     * Validates the form and saves the greeting
+     *
+     * @return mixed TRUE on success, an error message on failure
+     */
+    public function saveClient()
+    {
+    	/*
+    	 * Exit if the action isn't set properly
+    	*/
+    	if ( $_POST['action']!='edit_client' )
+    	{
+    		return "The method saveClient was accessed incorrectly";
+    	}
+    
+    	/*
+    	 * Escape data from the form
+    	*/
+    	
+    	$logo_url = htmlentities($_POST['logo_url'], ENT_QUOTES);
+    	$client = htmlentities($_POST['client'], ENT_QUOTES);
+    	$tagline = htmlentities($_POST['tagline'], ENT_QUOTES);
+    	$copy = $_POST['copy']; // htmlentities($_POST['copy'], ENT_QUOTES);
+    	 
+    	$id = (int) $_POST['client_id'];
+    
+    
+    	/*
+    	 * If no greeting ID passed, create a new greeting
+    	*/
+    	if ( empty($_POST['client_id']) )
+    	{
+    		$sql = "INSERT INTO `client_project`
+    				(`logo_url`, `client`, tagline`, `copy`)
+    				VALUES
+    				(:logo_url, :client, :tagline, :copy)";
+    	}
+    
+    	/*
+    	 * Update the greeting if it's being edited
+    	*/
+    	else
+    	{
+    		/*
+    		 * Cast the greeting ID as an integer for security
+    		*/
+    		$sql = "UPDATE `client_project`
+    		SET
+    		`logo_url`=:logo_url, `client`=:client, `tagline`=:tagline, `copy`=:copy
+    		WHERE `clientproj_id`=$id";
+    	}
+    
+    	/*
+    	 * Execute the create or edit query after binding the data
+    	*/
+    	try
+    	{
+    		 
+    		error_log($sql);
+    		 
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(":logo_url", $logo_url, PDO::PARAM_STR);
+    		$stmt->bindParam(":client", $client, PDO::PARAM_STR);
+    		$stmt->bindParam(":tagline", $tagline, PDO::PARAM_STR);
+    		$stmt->bindParam(":copy", $copy, PDO::PARAM_STR);
+    		$stmt->execute();
+    		$stmt->closeCursor();
+    		/*
+    		 * Returns the ID of the client
+    		*/
+    		// return $this->db->lastInsertId();
+    		 
+    		if ($id > 0) {
+    			$client_id = $id;
+    		} else {
+    			$client_id = $this->db->lastInsertId();
+    		}
+    		 
+    		//  error_log($client_id, 0);
+    		 
+    		return $client_id;
+    		 
+    	}
+    	catch ( Exception $e )
+    	{
+    		return $e->getMessage();
+    	}
+    }
+    
+
 
 }
 

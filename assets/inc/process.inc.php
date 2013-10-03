@@ -24,15 +24,10 @@ foreach ( $C as $name => $val )
 */
 
 $actions = array(
-		'process_user' => array(
-				'object' => 'ConsultSite',
-				'method' => 'processUser',
-				'header' => 'Location: ../../'
-		),
 		'user_login' => array(
 				'object' => 'Admin',
 				'method' => 'processLoginForm',
-				'header' => 'Location: ../../admin.php'
+				'header' => 'Location:  ../../'
 		),
 		'user_logout' => array(
 				'object' => 'Admin',

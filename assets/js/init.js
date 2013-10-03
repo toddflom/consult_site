@@ -353,6 +353,50 @@ jQuery(function($){
 	});
 	
 	
+
+	
+	
+	
+	
+	$(".client-admin-options>form>.admin").live("click", function(event){
+
+		event.preventDefault();
+				
+		console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
+
+		var logo_url = "&logo_url="+encodeURIComponent($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
+        var client = "&client="+encodeURIComponent($(this).parent().parent().siblings('.client').html());
+        var tagline = "&tagline="+encodeURIComponent($(this).parent().parent().siblings('.tagline').html());
+        var copy = "&copy="+encodeURIComponent($(this).parent().parent().siblings('.copy').html());
+
+		// Sets the action for the form submission
+        var action = $(event.target).attr("name") || "edit_client";
+        
+        // Saves the value of the greeting_id input
+        id = $("input[name=client_id]").val();
+        
+        // Creates an additional param for the ID if set
+        id = ( id!=undefined ) ? "&client_id="+id : "";
+        
+        var data = logo_url + client + tagline + copy;
+        
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action+id + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+        
+		
+	});
+	
+	
+	
 	
 	
 	
@@ -412,7 +456,7 @@ jQuery(function($){
 					//console.log('data = ' + data);
             		$( "#modal_background").remove();
             		$('#content').html(data); 
-            		shouldLoadFullEditor("div#greeting");
+            		shouldLoadEditor("div#greeting", true);
                 },
             error: function(msg) {
                     modal.append(msg);
@@ -436,7 +480,22 @@ jQuery(function($){
 	}
 	
 	
-	function shouldLoadFullEditor(sel) {
+	
+	function loadMinimalEditor(sel) {
+		console.log("loadMinimalEditor(");
+		tinymce.init({
+		    selector: sel,
+		    inline: true,
+		    toolbar: "undo redo",
+		    menubar: false
+		});
+	}
+	
+	
+	
+	function shouldLoadEditor(sel, full) {
+		
+		console.log("shouldLoadEditor(");
 		
 		$.ajax( {
 		      type:'GET',
@@ -445,14 +504,68 @@ jQuery(function($){
 		    	  if( data == "Expired" ) {
 				       return false;
 				   } else if (data == "Active" ) {
-					   loadFullEditor(sel);
+					   if (full) {
+						   loadFullEditor(sel);
+					   } else {
+						   loadMinimalEditor(sel);
+					   }
 					   return true;
 				   }
 		      }
 		   }
 		);
+	}
+	
+	
+	
+	
+	function initProjectsPage() {
+		
+		console.log("initProjectsPage()");
+		
+		
+		tinymce.init({
+			  selector: "div.logo_img", 
+			   inline: true,
+			  
+			  // ===========================================
+			  // INCLUDE THE PLUGIN
+			  // ===========================================
+				
+			  plugins: [
+			          /*  "advlist autolink lists link image charmap print preview anchor",
+					    "searchreplace visualblocks code fullscreen",
+					    "insertdatetime media table contextmenu paste jbimages" */
+			    "jbimages"
+			  ],
+				
+			  // ===========================================
+			  // PUT PLUGIN'S BUTTON on the toolbar
+			  // ===========================================
+				
+			  // toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image jbimages",
+			  toolbar: "jbimages",
+			  
+			  menubar: false,
+
+				
+			  // ===========================================
+			  // SET RELATIVE_URLS to FALSE (This is required for images to display properly)
+			  // ===========================================
+				
+			  relative_urls: false
+				
+			});
+		
+		
+		
+		shouldLoadEditor("div.client", false);
+		shouldLoadEditor("div.tagline", false);
+		shouldLoadEditor("div.copy", true);
 
 	}
+
+	
 	
 	
 	
@@ -471,6 +584,7 @@ jQuery(function($){
 		    success: function(data){
 					// console.log('data = ' + data);
 		    		$('#content').html(data); 
+		    		initProjectsPage();
 		        },
 		    error: function(msg) {
 		            modal.append(msg);

@@ -209,13 +209,26 @@ class ConsultSite extends DB_Connect
 				$ds = "<div class='client_project'>"; 
 				$de = "";
 				
+				
+				$logo_url = html_entity_decode($projects[$i]['logo_url'], ENT_QUOTES, "utf-8" );
+				$client = html_entity_decode($projects[$i]['client'], ENT_QUOTES, "utf-8" );
+				$tagline = html_entity_decode($projects[$i]['tagline'], ENT_QUOTES, "utf-8" );
+				$copy = html_entity_decode($projects[$i]['copy'], ENT_QUOTES, "utf-8" );
+				
+				
+				
+				
 				$link .= "<div class='client_info'>"
-						. "<img class='logo' src='" . $projects[$i]['logo_url'] . "' />"
-						. "<div class='client'>" .  $projects[$i]['client'] . "</div>"
-						. "<div class='tagline'>" .  $projects[$i]['tagline'] . "</div>"
-						. "<div class='copy'>" .  $projects[$i]['copy'] . "</div>"
-						. "<div class='cta'><a href='" .  $projects[$i]['cta_url'] . "'>Learn More</a></div>"
-						. "</div>";
+						. "<div class='logo_img'><img class='logo' src='" . $logo_url . "' /></div>"
+					//	. "<img class='logo' src='" . $projects[$i]['logo_url'] . "' />"
+						. "<div class='client minedit'>" .  $client . "</div>"
+						. "<div class='tagline minedit'>" .  $tagline . "</div>"
+						. "<div class='copy fulledit'>" .  $copy . "</div>"
+						. "<div class='cta'><a href='" .  $projects[$i]['cta_url'] . "'>Learn More</a></div>";
+				
+				$link .= $this->_adminClientOptions($projects[$i]['clientproj_id']);
+				
+				$link .= "</div>";
 				
 			} else {
 				$ds = "";
@@ -624,21 +637,14 @@ ADMIN_OPTIONS;
 			return <<<ADMIN_OPTIONS
 	
     <div class="client-admin-options">
-    <form action="clientadmin.php" method="post">
-        <p>
-            <input type="submit" name="edit_client"
-                  value="Edit This Client" />
-            <input type="hidden" name="client_id"
-                  value="$id" />
-        </p>
+    <form action="assets/inc/process.inc.php" method="post">
+		<a class="admin" href="#">Save Edits</a></div>
+		<input type="hidden" name="client_id" value="$id" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
     </form>
     <form action="confirmClientdelete.php" method="post">
-        <p>
-            <input type="submit" name="delete_client"
-                  value="Delete This Client" />
-            <input type="hidden" name="client_id"
-                  value="$id" />
-        </p>
+		<input type="submit" name="delete_client" value="Delete This Client" />
+		<input type="hidden" name="client_id" value="$id" />
     </form>
     </div><!-- end .client-admin-options -->
 ADMIN_OPTIONS;
