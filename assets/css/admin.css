@@ -34,7 +34,132 @@ input[type="submit"] {
 	top: 10px;
 }
 
-.client-admin-options input {
+.client-admin-options form {
 	float: left;
 	margin-right: 20px;
+}
+
+
+
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,.5);
+    z-index: 4;
+}
+
+.modal-center {
+	position:absolute;
+	left:50%;
+	width:0px;
+	top:0px;
+}
+.modal-window {
+	font-family: Arial,Helvetica,sans-serif;
+	color: #000;
+	position: absolute;
+    top: 40px;
+    left: -250px;
+    width: 500px;
+    height: auto;
+/*    margin-left: −150px; */
+    padding: 20px;
+   /* border: 2px solid #000; */
+    background-color: #B5B5B5;
+    z-index: 5;
+    border: 9px solid rgb(0, 0, 0);
+    border: 9px solid rgba(0, 0, 0, .5);
+    -webkit-background-clip: padding-box; /* for Safari */
+    background-clip: padding-box; /* for IE9+, Firefox 4+, Opera, Chrome */
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    color: black;
+    font-size: 16px;
+    display:block;
+}
+
+.modal-close-btn:before {
+    position: relative;
+    top: 0px;
+   /* content: ""; */
+    text-transform: uppercase;
+    font-size: 10px;
+}
+
+
+.modal-window .position_icon {
+	display:inline-block;
+	float:left;
+}
+
+.modal-window h2 {
+/*	float:left; */
+	height: 46px;
+    line-height: 46px;
+    margin: 0 0 8px 15px;
+    vertical-align: middle;
+   /*  color:#404040;  */
+}
+
+.modal-window p {
+	margin: 0 0 8px 15px;
+}
+
+.modal-window .pos_description {
+	clear:both;
+	font-size:90%;
+}
+
+.modal-window .task {
+	font-size:80%;
+	
+}
+
+.modal-window .pos_department_id {
+	margin: 10px 0;
+	clear:both;
+	font-size:90%;
+	font-weight:bold;
+}
+
+.modal-window .assoc_title {
+	margin: 15px 0 10px 0;
+	font-size:90%;
+	font-weight:bold;
+}
+
+.modal-window ul {
+	margin-left: 0;
+}
+
+.modal-window .step_description {
+	margin-left: 2em; 
+}
+
+.modal-window .step_title {
+	font-family: DINRoundProMedium,Arial,Helvetica,sans-serif;
+}
+
+
+.modal-window .modal-close-btn, .modal-search-window .modal-close-btn {
+	background: url('../images/close.gif')  no-repeat center top;
+	width:34px;
+	height:34px;
+}
+
+.modal-window .modal-close-btn:hover, .modal-search-window .modal-close-btn:hover {
+	background-position:0px -34px;
 }

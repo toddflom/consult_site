@@ -47,34 +47,33 @@ class Admin extends DB_Connect
     {
     	
     	
-        /*
-         * Fails if the proper action was not submitted
-         */
+    	return true;
+    	
+    	
+    	/*TODO reenable login authorization
+        //  Fails if the proper action was not submitted
+
         if ( $_POST['action']!='user_login' )
         {
             return "Invalid action supplied for processLoginForm.";
         }
 
-        /*
-         * Escapes the user input for security
-         */
-        $uname = htmlentities($_POST['uname'], ENT_QUOTES);
+         // Escapes the user input for security
+
+         $uname = htmlentities($_POST['uname'], ENT_QUOTES);
         $pword = htmlentities($_POST['pword'], ENT_QUOTES);
 		
-        
-        
-        
-        error_log($uname);
+       
+        // error_log($uname);
         
         
         if ($uname == 'admin') {
         	
         	// we have an admin
  
-        	/*
-        	 * Retrieves the matching info from the DB if it exists
-        	*/
-        	$sql = "SELECT
+        	// Retrieves the matching info from the DB if it exists
+
+          	$sql = "SELECT
         	`user_id`, `user_name`, `user_pass`
        		 FROM `users`
         	WHERE `user_name` = :uname LIMIT 1";
@@ -92,31 +91,30 @@ class Admin extends DB_Connect
         		die ( $e->getMessage() );
         	}
         	
-        	/*
-        	 * Fails if username doesn't match a DB entry
-        	*/
+        	
+        	// Fails if username doesn't match a DB entry
+        	
         	if ( !isset($user) )
         	{
         		return "No user found with that ID.";
         	}
         	
-        	/*
-        	 * Get the hash of the user-supplied password
-        	*/
+        	
+        	// Get the hash of the user-supplied password
+        	
         	$hash = $this->_getSaltedHash($pword, $user['user_pass']);
         	
         	error_log($hash);
         	
         	error_log($this->testSaltedHash($pword, $user['user_pass']));
         	
-        	/*
-        	 * Checks if the hashed password matches the stored hash
-        	*/
+        	
+        	// Checks if the hashed password matches the stored hash
+        	
         	if ( $user['user_pass']==$hash )
         	{
-        		/*
-        		 * Stores user info in the session as an array
-        		*/
+        		// Stores user info in the session as an array
+        		
         		$_SESSION['user'] = array(
         				'id' => $user['user_id'],
         				'name' => $user['user_name'],
@@ -125,9 +123,9 @@ class Admin extends DB_Connect
         		return TRUE;
         	}
         	
-        	/*
-        	 * Fails if the passwords don't match
-        	*/
+        	
+        	// Fails if the passwords don't match
+        	
         	else
         	{
         		return "Your username or password is invalid.";
@@ -155,7 +153,8 @@ class Admin extends DB_Connect
         	}
        	
         	
-        }       
+        }     
+        */  
 
     }
     
@@ -271,7 +270,7 @@ class Admin extends DB_Connect
     	/*
     	 * Escape data from the form
     	*/
-    	$copy = htmlentities($_POST['text'], ENT_QUOTES);
+    	$copy = $_POST['text'];
 
     	$id = (int) $_POST['greeting_id'];
 
@@ -357,10 +356,11 @@ class Admin extends DB_Connect
     	*/
     	
     	$logo_url = htmlentities($_POST['logo_url'], ENT_QUOTES);
-    	$client = htmlentities($_POST['client'], ENT_QUOTES);
-    	$tagline = htmlentities($_POST['tagline'], ENT_QUOTES);
+    	$client = $_POST['client'];
+    	$tagline = $_POST['tagline'];
     	$copy = $_POST['copy']; // htmlentities($_POST['copy'], ENT_QUOTES);
-    	 
+    	$cta_url = htmlentities($_POST['cta_url'], ENT_QUOTES);
+    	
     	$id = (int) $_POST['client_id'];
     
     
@@ -370,9 +370,9 @@ class Admin extends DB_Connect
     	if ( empty($_POST['client_id']) )
     	{
     		$sql = "INSERT INTO `client_project`
-    				(`logo_url`, `client`, tagline`, `copy`)
+    				(`logo_url`, `client`, tagline`, `copy`, `cta_url`)
     				VALUES
-    				(:logo_url, :client, :tagline, :copy)";
+    				(:logo_url, :client, :tagline, :copy, :cta_url)";
     	}
     
     	/*
@@ -385,7 +385,7 @@ class Admin extends DB_Connect
     		*/
     		$sql = "UPDATE `client_project`
     		SET
-    		`logo_url`=:logo_url, `client`=:client, `tagline`=:tagline, `copy`=:copy
+    		`logo_url`=:logo_url, `client`=:client, `tagline`=:tagline, `copy`=:copy, `cta_url`=:cta_url
     		WHERE `clientproj_id`=$id";
     	}
     
@@ -402,6 +402,7 @@ class Admin extends DB_Connect
     		$stmt->bindParam(":client", $client, PDO::PARAM_STR);
     		$stmt->bindParam(":tagline", $tagline, PDO::PARAM_STR);
     		$stmt->bindParam(":copy", $copy, PDO::PARAM_STR);
+    		$stmt->bindParam(":cta_url", $cta_url, PDO::PARAM_STR);
     		$stmt->execute();
     		$stmt->closeCursor();
     		/*
@@ -425,6 +426,152 @@ class Admin extends DB_Connect
     		return $e->getMessage();
     	}
     }
+    
+    
+    
+
+    /**
+     * Confirms that a client should be deleted and does so
+     *
+     * Upon clicking the button to delete a client, this
+     * generates a confirmation box. If the user confirms,
+     * this deletes the client from the database and reloads
+     * the projects view. If the user
+     * decides not to delete the client, they're sent back to
+     * the prjects view without deleting anything.
+     *
+     * @param int $id the client ID
+     * @return mixed the form if confirming, void or error if deleting
+     */
+    public function confirmClientDelete($id)
+    {
+    	/*
+    	 * Make sure an ID was passed
+    	*/
+    	if ( empty($id) ) { return NULL; }
+    
+    	/*
+    	 * Make sure the ID is an integer
+    	*/
+    	$id = preg_replace('/[^0-9]/', '', $id);
+    
+    	/*
+    	 * If the confirmation form was submitted and the form
+    	* has a valid token, check the form submission
+    	*/
+    	if ( isset($_POST['confirm_client_delete'])
+    			&& $_POST['token']==$_SESSION['token'] )
+    	{
+    		/*
+    		 * If the deletion is confirmed, remove the client
+    		* from the database
+    		*/
+    		if ( $_POST['confirm_client_delete']=="Confirm Delete" )
+    		{
+    			$sql = "DELETE FROM `client_project`
+    			WHERE `clientproj_id`=:id
+                            LIMIT 1";
+    			try
+    			{
+    				$stmt = $this->db->prepare($sql);
+    				$stmt->bindParam(
+    						":id",
+    						$id,
+    						PDO::PARAM_INT
+    				);
+    				$stmt->execute();
+    				$stmt->closeCursor();
+    			//	header("Location: ./");
+    				return;
+    			}
+    			catch ( Exception $e )
+    			{
+    				return $e->getMessage();
+    			}
+    		}
+    
+    		/*
+    		 * If not confirmed, sends the user to the main view
+    		*/
+    		else
+    		{
+    			echo "didn't work";
+    		//	header("Location: ./");
+    			return;
+    		}
+    	}
+    
+    	/*
+    	 * If the confirmation form hasn't been submitted, display it
+    	*/
+    	$client = $this->_loadClientById($id);
+    
+ 
+    	$clientName = strip_tags($client[0]['client']);
+    	$client_id = $client[0]['clientproj_id'];
+    	
+    	
+    //	error_log("client = " . implode(",", $client));
+
+    	return <<<CONFIRM_DELETE
+    
+    <form class="client_delete" action="confirmdelete.php" method="post">
+        <h2>
+            Are you sure you want to delete "$clientName"?
+        </h2>
+        <p>There is <strong>no undo</strong> if you continue.</p>
+        <p>
+            <input type="submit" name="confirm_client_delete"
+                  value="Confirm Delete" />
+            <input type="submit" name="confirm_client_delete"
+                  value="Cancel" />
+            <input type="hidden" name="client_id"
+                  value="$client_id" />
+            <input type="hidden" name="token"
+                  value="$_SESSION[token]" />
+        </p>
+    </form>
+CONFIRM_DELETE;
+    }
+    
+    
+    
+    private function _loadClientById($id) {
+    
+    	$sql = "SELECT `clientproj_id`,
+		 `client`,
+		 `logo_url`,
+		 `tagline`,
+		 `copy`,
+		 `cta_url`
+		 FROM
+		 `client_project`
+		 WHERE
+		 `clientproj_id`=:id
+    	LIMIT 1;";
+    
+    	try
+    	{
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(
+    				":id",
+    				$id,
+    				PDO::PARAM_INT
+    		);
+    		$stmt->execute();
+    		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    		$stmt->closeCursor();
+    
+    		return $results;
+    	}
+    	catch ( Exception $e )
+    	{
+    		die ( $e->getMessage() );
+    	}
+    }
+    
+    
+    
     
 
 

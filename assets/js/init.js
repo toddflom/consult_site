@@ -104,8 +104,8 @@ jQuery(function($){
 		            }
 		        );
 	        }
-            if ($(".modal-step-window").length) {
-	            $(".modal-step-window")
+            if ($(".modal-window").length) {
+	            $(".modal-window")
 		            .fadeOut("fast", function() {
 		                $(this).remove();
 		            }
@@ -354,48 +354,7 @@ jQuery(function($){
 	
 	
 
-	
-	
-	
-	
-	$(".client-admin-options>form>.admin").live("click", function(event){
 
-		event.preventDefault();
-				
-		console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
-
-		var logo_url = "&logo_url="+encodeURIComponent($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
-        var client = "&client="+encodeURIComponent($(this).parent().parent().siblings('.client').html());
-        var tagline = "&tagline="+encodeURIComponent($(this).parent().parent().siblings('.tagline').html());
-        var copy = "&copy="+encodeURIComponent($(this).parent().parent().siblings('.copy').html());
-
-		// Sets the action for the form submission
-        var action = $(event.target).attr("name") || "edit_client";
-        
-        // Saves the value of the greeting_id input
-        id = $("input[name=client_id]").val();
-        
-        // Creates an additional param for the ID if set
-        id = ( id!=undefined ) ? "&client_id="+id : "";
-        
-        var data = logo_url + client + tagline + copy;
-        
-        $.ajax({
-            type: "POST",
-            url: processFile,
-            data: "action="+action+id + data,
-            success: function(data){
-            	console.log("SUCCESS!!");
-            },
-            error: function(msg){
-                alert(msg);
-            }
-        });
-        
-		
-	});
-	
-	
 	
 	
 	
@@ -456,7 +415,7 @@ jQuery(function($){
 					//console.log('data = ' + data);
             		$( "#modal_background").remove();
             		$('#content').html(data); 
-            		shouldLoadEditor("div#greeting", true);
+            		shouldLoadEditor("div#greeting", 'full');
                 },
             error: function(msg) {
                     modal.append(msg);
@@ -475,7 +434,7 @@ jQuery(function($){
 		        "searchreplace visualblocks code",
 		        "insertdatetime paste"
 		    ],
-		    toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link"
+		    toolbar: "undo redo | bold italic | charmap | link"
 		});
 	}
 	
@@ -486,14 +445,41 @@ jQuery(function($){
 		tinymce.init({
 		    selector: sel,
 		    inline: true,
-		    toolbar: "undo redo",
+		    plugins: "charmap",
+		    toolbar: "undo redo | charmap",
 		    menubar: false
 		});
+	}
+
+	
+	
+	function loadLinkEditor(sel) {
+		tinymce.init({
+			  selector: sel, 
+			  inline: true,
+			  plugins: "link",
+          toolbar: "link",
+			  menubar: false
+			});
+	}
+	
+	
+	function loadImageEditor(sel) {
+		tinymce.init({
+			  selector: sel, 
+			   inline: true,
+			  plugins: [
+			    "jbimages"
+			  ],
+			  toolbar: "jbimages",
+			  menubar: false,
+			  relative_urls: false
+			});
 	}
 	
 	
 	
-	function shouldLoadEditor(sel, full) {
+	function shouldLoadEditor(sel, type) {
 		
 		console.log("shouldLoadEditor(");
 		
@@ -504,11 +490,22 @@ jQuery(function($){
 		    	  if( data == "Expired" ) {
 				       return false;
 				   } else if (data == "Active" ) {
-					   if (full) {
+					   
+					   switch (type) {
+					   case 'full':
 						   loadFullEditor(sel);
-					   } else {
+					     break;
+					   case 'minimal':
 						   loadMinimalEditor(sel);
+					     break;
+					   case 'link':
+						  loadLinkEditor(sel);
+					     break;
+					   case 'image':
+						  loadImageEditor(sel);
+					     break;
 					   }
+					   
 					   return true;
 				   }
 		      }
@@ -519,49 +516,56 @@ jQuery(function($){
 	
 	
 	
+	
+	
+	
+	$(".client-admin-options>form>.admin").live("click", function(event){
+
+		event.preventDefault();
+				
+		console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
+
+		var logo_url = "&logo_url="+encodeURIComponent($(this).parent().parent().siblings('.logo_img').find('img').attr('src'));
+        var client = "&client="+encodeURIComponent($(this).parent().parent().siblings('.client').html());
+        var tagline = "&tagline="+encodeURIComponent($(this).parent().parent().siblings('.tagline').html());
+        var copy = "&copy="+encodeURIComponent($(this).parent().parent().siblings('.copy').html());
+        var cta_url = "&cta_url="+encodeURIComponent($(this).parent().parent().siblings('.cta').html()); //.find('a').attr('href'));
+
+		// Sets the action for the form submission
+        var action = $(event.target).attr("name") || "edit_client";
+        
+        // Saves the value of the greeting_id input
+        id = $("input[name=client_id]").val();
+        
+        // Creates an additional param for the ID if set
+        id = ( id!=undefined ) ? "&client_id="+id : "";
+        
+        var data = logo_url + client + tagline + copy + cta_url;
+        
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action+id + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+        
+	});
+	
+	
+	
+	
 	function initProjectsPage() {
 		
-		console.log("initProjectsPage()");
-		
-		
-		tinymce.init({
-			  selector: "div.logo_img", 
-			   inline: true,
-			  
-			  // ===========================================
-			  // INCLUDE THE PLUGIN
-			  // ===========================================
-				
-			  plugins: [
-			          /*  "advlist autolink lists link image charmap print preview anchor",
-					    "searchreplace visualblocks code fullscreen",
-					    "insertdatetime media table contextmenu paste jbimages" */
-			    "jbimages"
-			  ],
-				
-			  // ===========================================
-			  // PUT PLUGIN'S BUTTON on the toolbar
-			  // ===========================================
-				
-			  // toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image jbimages",
-			  toolbar: "jbimages",
-			  
-			  menubar: false,
-
-				
-			  // ===========================================
-			  // SET RELATIVE_URLS to FALSE (This is required for images to display properly)
-			  // ===========================================
-				
-			  relative_urls: false
-				
-			});
-		
-		
-		
-		shouldLoadEditor("div.client", false);
-		shouldLoadEditor("div.tagline", false);
-		shouldLoadEditor("div.copy", true);
+		shouldLoadEditor("div.logo_img", 'image');
+		shouldLoadEditor(".client_info>div.cta", 'link');
+		shouldLoadEditor("div.client", 'minimal');
+		shouldLoadEditor("div.tagline", 'minimal');
+		shouldLoadEditor("div.copy", 'full');
 
 	}
 
@@ -645,9 +649,134 @@ jQuery(function($){
 	
 	
 	
-	/*
-	 * END NEW CONTENT
-	 */
+	
+	// Displays the client edit form as a modal window
+	$(".client-admin-options form input[type=submit]").live("click", function(event){
+
+			console.log("client admin form click");
+
+			// Prevents the form from submitting
+	        event.preventDefault();
+	        
+	        // Sets the action for the form submission
+	        var action = $(event.target).attr("name") || "delete_client";
+	        
+	        // Saves the value of the step_id input
+	        id = $(event.target)
+	        .siblings("input[name=client_id]")
+	            .val();
+	        
+	        // Creates an additional param for the ID if set
+	        id = ( id!=undefined ) ? "&client_id="+id : "";
+	        
+	        
+	        // Loads the editing form and displays it
+	        $.ajax({
+	            type: "POST",
+	            url: processFile,
+	            data: "action="+action+id,
+	            success: function(data){
+	                // Hides the form
+	            	var form = $(data).hide();
+	            	
+	            //	console.log(data);
+
+	                // Make sure the modal window exists
+	               var  modal = fx.initModal()
+	                	.children(":not(.modal-close-btn)")
+	                    .remove()
+	                    .end();
+
+	                // Call the boxin function to create
+	                // the modal overlay and fade it in
+	                fx.boxin(null, modal);
+
+	                // Load the form into the window,
+	                // fades in the content, and adds
+	                // a class to the form
+	                form
+	                   .appendTo(modal)
+	                    .addClass("edit-form")
+	                    .fadeIn("fast");
+	            },
+	            error: function(msg){
+	                alert(msg);
+	            }
+	        });
+
+	    });
+	
+	
+	
+	
+	
+	
+	$(".client_delete.edit-form input[type=submit]").live("click", function(event){
+		
+		console.log("delete client form click");
+
+        // Prevents the default form action from executing
+        event.preventDefault();
+        
+       // Serializes the form data for use with $.ajax()
+        var formData = $(this).parents("form").serialize();
+       
+	    // Stores the value of the submit button
+	    submitVal = $(this).val();
+	    
+	    // Determines if the client should be removed
+        remove = false;
+	
+	    // If this is the deletion form, appends an action
+	    if ( $(this).attr("name")=="confirm_client_delete" )
+	    {
+	        // Adds necessary info to the query string
+	        formData += "&action=confirm_client_delete"
+	            + "&confirm_client_delete="+submitVal;
+
+		     // If the client is really being deleted, sets
+		     // a flag to remove it from the markup
+            if ( submitVal=="Confirm Delete" )
+            {
+               remove = true;
+            }
+	    }
+	    
+	    
+        // Sends the data to the processing file
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: formData,
+           success: function(data) {
+            	// If this is a deleted position, removes
+                // it from the markup
+                if ( remove===true )
+                {
+                   fx.removedefinition();
+                }
+                
+               console.log("data = " + data);
+                
+                // Fades out the modal window
+                fx.boxout();
+                
+                /*
+                // If this is a new client, adds it to
+                // the process
+               if ( $("[name=client_id]").val()==0  && remove===false )
+               {
+                    fx.adddefinition(data, formData);
+                }
+                */
+            },
+            error: function(msg) {
+                alert(msg);
+            }
+        });
+
+	});
+
 	
 	
 	

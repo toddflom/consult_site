@@ -214,17 +214,16 @@ class ConsultSite extends DB_Connect
 				$client = html_entity_decode($projects[$i]['client'], ENT_QUOTES, "utf-8" );
 				$tagline = html_entity_decode($projects[$i]['tagline'], ENT_QUOTES, "utf-8" );
 				$copy = html_entity_decode($projects[$i]['copy'], ENT_QUOTES, "utf-8" );
-				
-				
+				$cta_url = stripslashes(html_entity_decode($projects[$i]['cta_url'], ENT_QUOTES, "utf-8" ));
+		
 				
 				
 				$link .= "<div class='client_info'>"
 						. "<div class='logo_img'><img class='logo' src='" . $logo_url . "' /></div>"
-					//	. "<img class='logo' src='" . $projects[$i]['logo_url'] . "' />"
 						. "<div class='client minedit'>" .  $client . "</div>"
 						. "<div class='tagline minedit'>" .  $tagline . "</div>"
 						. "<div class='copy fulledit'>" .  $copy . "</div>"
-						. "<div class='cta'><a href='" .  $projects[$i]['cta_url'] . "'>Learn More</a></div>";
+						. "<div class='cta'>" .  $cta_url . "</div>";
 				
 				$link .= $this->_adminClientOptions($projects[$i]['clientproj_id']);
 				
@@ -638,7 +637,7 @@ ADMIN_OPTIONS;
 	
     <div class="client-admin-options">
     <form action="assets/inc/process.inc.php" method="post">
-		<a class="admin" href="#">Save Edits</a></div>
+		<a class="admin" href="#">Save Edits</a>
 		<input type="hidden" name="client_id" value="$id" />
 		<input type="hidden" name="token" value="$_SESSION[token]" />
     </form>

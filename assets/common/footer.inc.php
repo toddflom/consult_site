@@ -1,5 +1,6 @@
 
 	</div>
+	<div class="modal-center"></div>
 	<div class="footer">
             <div>Contact<img src="assets/images/footer_photo.png" />Dorian Taylor</div>
             <div class="email"><a href="mailto:dorian.taylor@cynch.com"><img src="assets/images/mail_icon.gif" />dorian.taylor@cynch.com</a></div>

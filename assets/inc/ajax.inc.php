@@ -53,7 +53,16 @@ $actions = array(
 		'edit_client' => array(
 				'object' => 'Admin',
 				'method' => 'saveClient'
+		),
+		'delete_client' => array(
+				'object' => 'Admin',
+				'method' => 'confirmClientDelete'
+		),
+		'confirm_client_delete' => array(
+				'object' => 'Admin',
+				'method' => 'confirmClientDelete'
 		)
+		
 		
 		
 );
@@ -78,25 +87,9 @@ if ( isset($actions[$_POST['action']]) )
 	{
 		$id = (int) $_POST['greeting_id'];
 	}
-	else if (isset($_POST['position_id']))
+	else if (isset($_POST['client_id']))
 	{
-		$id = (int)$_POST['position_id'];
-	}
-	else if (isset($_POST['definition_id']))
-	{
-		$id = (int)$_POST['definition_id'];
-	}
-	else if (isset($_POST['department_id']))
-	{
-		$id = (int)$_POST['department_id'];
-	}
-	else if (isset($_POST['glossary_letter']))
-	{
-		$id = $_POST['glossary_letter'];
-	}
-	else if (isset($_POST['search_id'])) // Search id is bullshit
-	{
-		$id = (int)$_POST['search_id'];
+		$id = (int)$_POST['client_id'];
 	}
 	else { $id = NULL; }
 	
