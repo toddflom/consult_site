@@ -61,6 +61,18 @@ $actions = array(
 		'confirm_client_delete' => array(
 				'object' => 'Admin',
 				'method' => 'confirmClientDelete'
+		),
+		'edit_project' => array(
+				'object' => 'Admin',
+				'method' => 'editProject'
+		),
+		'delete_project' => array(
+				'object' => 'Admin',
+				'method' => 'confirmProjectDelete'
+		),
+		'confirm_project_delete' => array(
+				'object' => 'Admin',
+				'method' => 'confirmProjectDelete'
 		)
 		
 		
@@ -90,6 +102,10 @@ if ( isset($actions[$_POST['action']]) )
 	else if (isset($_POST['client_id']))
 	{
 		$id = (int)$_POST['client_id'];
+	}
+	else if (isset($_POST['project_id']))
+	{
+		$id = (int)$_POST['project_id'];
 	}
 	else { $id = NULL; }
 	

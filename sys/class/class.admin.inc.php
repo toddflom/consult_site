@@ -359,10 +359,12 @@ class Admin extends DB_Connect
     	$client = $_POST['client'];
     	$tagline = $_POST['tagline'];
     	$copy = $_POST['copy']; // htmlentities($_POST['copy'], ENT_QUOTES);
-    	$cta_url = htmlentities($_POST['cta_url'], ENT_QUOTES);
-    	
+    	/* $cta_url = htmlentities($_POST['cta_url'], ENT_QUOTES); */
+    	$cta_url = $_POST['cta_url'];
+    	 
     	$id = (int) $_POST['client_id'];
     
+    	error_log("client_id = " . $id);
     
     	/*
     	 * If no greeting ID passed, create a new greeting
@@ -572,7 +574,305 @@ CONFIRM_DELETE;
     
     
     
+        
     
+    /**
+     * Generates a form to edit or create projects
+     *
+     * @return string the HTML markup for the editing form
+     */
+    public function editProject()
+    {
+    	
+    	/*
+    	 * Check if an ID was passed
+    	*/
+    	if ( isset($_POST['project_id']) )
+    	{
+    		$id = (int) $_POST['project_id']; // Force integer type to sanitize data
+    	}
+    	else
+    	{
+    		$id = NULL;
+    	}
+    	 
+    	$tasks = "";
+    
+    	/*
+    	 * Instantiate the headline/submit button text
+    	*/
+    	$submit = "Create a New Project";
+    
+    	/*
+    	 * If an ID is passed, loads the associated step
+    	*/
+    	if ( !empty($id) )
+    	{
+    		$project = $this->_loadProjectById($id);
+    		$submit = "Edit This Project";
+    	}
+    	else
+    	{
+    		// $project = new Step(NULL, $this->db);
+    	}
+ 
+    	$project_id = $project[0]['project_id'];
+    	$clientproj_id = $project[0]['clientproj_id'];
+    	$title = strip_tags($project[0]['title']);
+    	$thumbnail_url = $project[0]['thumbnail_url'];
+    	$video_url = $project[0]['video_url'];
+    	$image_url = $project[0]['image_url'];
+    	 
+    	$checked = $project[0]['is_featured'] == 1 ? 'checked' : '';
+    	$highlightBox = '<input type="checkbox" name="project_featured" value="1" ' . $checked . ' />';
+    	 
+    	$clientDropMenu = $this->buildClientsDrop($project[0]['clientproj_id']);
+    	
+    	$vimeoDropMenu = $this->_buildVimeosDrop($project[0]['video_url']);
+    
+    	/*
+    	 * Build the markup
+    	*/
+    	return <<<FORM_MARKUP
+         
+    <form action="assets/inc/process.inc.php" method="post" enctype="multipart/form-data">
+        <fieldset>
+            <legend>$submit</legend>
+            <div><label for="project_client_id">Client:</label>
+            $clientDropMenu</div>
+            <div><label for="step_name">Project Title:</label>
+            <input type="text" name="project_title"
+                  id="project_title" value="$title" /></div>
+            <div><label for="project_featured">Project Featured on Main Page:</label>
+            $highlightBox
+            </div>
+            <div><label for="thumbnail_url">Project Thumbnail:</label>
+            <textarea name="thumbnail_url"
+                  id="thumbnail_url">$thumbnail_url</textarea></div>
+            <div><label for="video_url">Vimeo Video:</label>
+            $vimeoDropMenu</div>
+            <div><label for="image_url">URL for image:</label>
+            <textarea name="image_url"
+                  id="image_url">$image_url</textarea></div>
+            <input type="hidden" name="step_id" value="$project_id" />
+            <input type="hidden" name="token" value="$_SESSION[token]" />
+            <input type="hidden" name="action" value="project_edit" />
+            <input type="submit" name="project_submit" value="$submit" />
+            or <a href="./">cancel</a>
+        </fieldset>
+    </form>
+FORM_MARKUP;
+    }
+    
+    
+    
+
+    /**
+     * Builds Clients dropdown menu
+     *
+     * @param int $id the client ID
+     * @return string the html markup for a clients dropdown menu
+     */
+    public function buildClientsDrop ($id = NULL)
+    {
+    
+    	//$positions = $this->_loadPositions();
+    	 
+    	$sql = "SELECT
+                    *
+                FROM `client_project`";
+    	 
+    	$clients = $this->_runSQL($sql);
+    	 
+    	// error_log(var_dump($positions));
+    
+    
+    	$html = '<select id="clients" name="clients[]">';  // Posts as an enumeratable array
+    
+    	foreach ( $clients as $client )
+    	{
+    		// error_log($id);
+    		 
+    		$html .= '<option value="'
+    				. $client['clientproj_id']
+    				. '" ';
+    		 
+    		if ($id != NULL)
+    		{
+    			if ($id == $client['clientproj_id'])
+    			{
+    				$html .= 'selected="selected"';
+    			}
+    		}
+    		 
+    		 
+    		$html .= '>'
+    				. $client['client']
+    				. '</option>';
+    		 
+    	}
+    
+    	$html .= '</select>';
+    
+    	return $html;
+    
+    }
+    
+    
+    
+
+
+    private function _loadProjectById($id) {
+    
+    	$sql = "SELECT `project_id`,
+    	 `clientproj_id`,
+		 `title`,
+		 `thumbnail_url`,
+		 `video_url`,
+		 `image_url`,
+		 `is_featured`
+		 FROM
+		 `project`
+		 WHERE
+		 `project_id`=:id
+    	LIMIT 1;";
+    
+    	try
+    	{
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(
+    				":id",
+    				$id,
+    				PDO::PARAM_INT
+    		);
+    		$stmt->execute();
+    		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    		$stmt->closeCursor();
+    
+    		return $results;
+    	}
+    	catch ( Exception $e )
+    	{
+    		die ( $e->getMessage() );
+    	}
+    }
+    
+
+    
+    
+    
+    
+    /**
+     * Builds Vimeo dropdown menu
+     *
+     * @param int $id the vimeo video ID
+     * @return string the html markup for a vimeo dropdown menu
+     */
+    private function _buildVimeosDrop ($id = NULL)
+    {
+    
+    	require_once('/Users/toddflom/Desktop/MAMP root/Consultant Site/consult_site/vimeo/vimeo.php');
+    	$vimeo = new phpVimeo('3623b66c5e557a850636cc6f9c3c1c57c473236e', 'de839c39d834cce43ccf606869beda547d78bfad');
+    	$vimeo->setToken('207d88049f149371d72135d3acae4af1','ca82591c8fdcaedc5008eee783840c83b0bc1b67');    
+    
+    	$html = '<select id="videos" name="videos[]">';  // Posts as an enumeratable array
+    
+    	$output = '<div class="albumGallery">';
+    	$result = $vimeo->call('vimeo.videos.getAll', array('page' => '1',  'perpage' => '50'));
+    	$videos = $result->videos->video;
+    	foreach ($videos as $video) {
+    		// error_log($id);
+    		 
+    		$html .= '<option value="'
+    				. $video->id
+    				. '" ';
+    		 
+    		if ($id != NULL)
+    		{
+    			if ($id == $video->id)
+    			{
+    				$html .= 'selected="selected"';
+    			}
+    		}
+    		 
+    		 
+    		$html .= '>'
+    				. $video->title
+    				. '</option>';
+    		 
+    	}
+    
+    	$html .= '</select>';
+    
+    	return $html;
+    
+    }
+    
+
+
+
+    /**
+     * Load Vimeo gallery
+     */
+    
+    private function _loadVimeoLibrary() {
+    	// Any time you want to call the Advanced API, your PHP will start with these 3 lines:
+    	require_once('/Users/toddflom/Desktop/MAMP root/Consultant Site/consult_site/vimeo/vimeo.php');
+    	$vimeo = new phpVimeo('3623b66c5e557a850636cc6f9c3c1c57c473236e', 'de839c39d834cce43ccf606869beda547d78bfad');
+    	$vimeo->setToken('207d88049f149371d72135d3acae4af1','ca82591c8fdcaedc5008eee783840c83b0bc1b67');
+    
+    	// Here is a sample snippet for generating an gallery from a vimeo album (which is not limited to 20 videos like the basic API), and should get you started taking advantage of the Advanced API. In modx, you would call this snippet with the album ID for which you want a gallery
+    
+    	$output = '<div class="albumGallery">';
+    	$result = $vimeo->call('vimeo.videos.getAll', array('page' => '1',  'perpage' => '50'));
+    	$videos = $result->videos->video;
+    	foreach ($videos as $video) {
+    			
+    		$output .= ' <a href="'.$video->urls->url[0]->_content.'" title="'.$video->title.'" rel="zoombox[group]">';
+    		$output .= '  <div class="albumGalleryItem">';
+    		$output .= '   <div class="ImgContainer">'.$video->id.'</div>';
+    		$output .= '   <div class="albumGalleryCaption">'.$video->title.'</div>';
+    		$output .= '  </div>';
+    		$output .= ' </a>';
+    	}
+    
+    	$output .= '</div>';
+    
+    	return $output;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+
+    /**
+     * Runs a suppiled SQL statment that has no binding variables
+     * and returns results as an array
+     */
+    private function _runSQL($sql)
+    {
+    	try
+    	{
+    		$stmt = $this->db->prepare($sql);
+    
+    		$stmt->execute();
+    		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    		$stmt->closeCursor();
+    
+    		//echo var_dump($results);
+    
+    		return $results;
+    
+    	}
+    	catch ( Exception $e )
+    	{
+    		die ( $e->getMessage() );
+    	}
+    }
 
 
 }

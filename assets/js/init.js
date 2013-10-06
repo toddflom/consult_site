@@ -57,13 +57,17 @@ jQuery(function($){
         },
 		
      // Adds the window to the markup and fades it in
-        "boxin" : function(data, modal) {
+        "boxin" : function(data, modal, top) {
             // Loads data into the modal window and
             // appends it to the body element
             modal
                 .hide()
                 .append(data)
                 .appendTo(".modal-center");
+
+            modal
+        	.css("top", top);
+            console.log(top);
 
             // Fades in the modal window // and overlay
             // $(".modal-window") //,.modal-overlay")
@@ -523,19 +527,27 @@ jQuery(function($){
 
 		event.preventDefault();
 				
-		console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
+		// console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
 
 		var logo_url = "&logo_url="+encodeURIComponent($(this).parent().parent().siblings('.logo_img').find('img').attr('src'));
         var client = "&client="+encodeURIComponent($(this).parent().parent().siblings('.client').html());
         var tagline = "&tagline="+encodeURIComponent($(this).parent().parent().siblings('.tagline').html());
         var copy = "&copy="+encodeURIComponent($(this).parent().parent().siblings('.copy').html());
-        var cta_url = "&cta_url="+encodeURIComponent($(this).parent().parent().siblings('.cta').html()); //.find('a').attr('href'));
+        
+        // strip out the text and url from bullshit that TinyMCE adds
+        var txt = $(this).parent().parent().siblings('.cta').find('a').html(); // the text for the link
+        var url = $(this).parent().parent().siblings('.cta').find('a').attr('href'); // the url of the link
+        
+        var cta_url = "&cta_url="+encodeURIComponent('<a href="' + url + '" target="_blank" >' + txt + '</a>' ); //.find('a').attr('href'));
 
+        console.log(cta_url.toString());
+        
+        
 		// Sets the action for the form submission
         var action = $(event.target).attr("name") || "edit_client";
         
-        // Saves the value of the greeting_id input
-        id = $("input[name=client_id]").val();
+        // Saves the value of the client_id input
+        id = $(this).siblings("input[name=client_id]").val();
         
         // Creates an additional param for the ID if set
         id = ( id!=undefined ) ? "&client_id="+id : "";
@@ -581,19 +593,7 @@ jQuery(function($){
 		$(this).addClass("active");
 		$(this).siblings().removeClass('active');
 
-		$.ajax({
-		    type: "POST",
-		    url: processFile,
-		    data: "action=projectsPage_view",
-		    success: function(data){
-					// console.log('data = ' + data);
-		    		$('#content').html(data); 
-		    		initProjectsPage();
-		        },
-		    error: function(msg) {
-		            modal.append(msg);
-		        }
-		});
+		loadProjectsPage();
 	});
 	
 	
@@ -669,6 +669,7 @@ jQuery(function($){
 	        // Creates an additional param for the ID if set
 	        id = ( id!=undefined ) ? "&client_id="+id : "";
 	        
+	        var offset = $(this).offset();
 	        
 	        // Loads the editing form and displays it
 	        $.ajax({
@@ -689,7 +690,7 @@ jQuery(function($){
 
 	                // Call the boxin function to create
 	                // the modal overlay and fade it in
-	                fx.boxin(null, modal);
+	                fx.boxin(null, modal, offset.top - 200);
 
 	                // Load the form into the window,
 	                // fades in the content, and adds
@@ -749,17 +750,19 @@ jQuery(function($){
             url: processFile,
             data: formData,
            success: function(data) {
-            	// If this is a deleted position, removes
+            	// If this is a deleted client, removes
                 // it from the markup
                 if ( remove===true )
                 {
                    fx.removedefinition();
                 }
                 
-               console.log("data = " + data);
+              // console.log("data = " + data);
                 
                 // Fades out the modal window
                 fx.boxout();
+                
+                loadProjectsPage();
                 
                 /*
                 // If this is a new client, adds it to
@@ -777,8 +780,85 @@ jQuery(function($){
 
 	});
 
+	function loadProjectsPage() {
+		$.ajax({
+		    type: "POST",
+		    url: processFile,
+		    data: "action=projectsPage_view",
+		    success: function(data){
+					// console.log('data = ' + data);
+		    		$('#content').html(data); 
+		    		initProjectsPage();
+		        },
+		    error: function(msg) {
+		            modal.append(msg);
+		        }
+		});
+	}
 	
 	
+	
+	
+	
+	
+	// Displays the project edit form as a modal window
+	$(".project-admin-options form input[type=submit]").live("click", function(event){
+
+			console.log("project admin form click");
+
+			// Prevents the form from submitting
+	        event.preventDefault();
+	        
+	        // Sets the action for the form submission
+	        var action = $(event.target).attr("name") || "edit_project";
+	        
+	        // Saves the value of the project_id input
+	        id = $(event.target)
+	        .siblings("input[name=project_id]")
+	            .val();
+	        
+	        // Creates an additional param for the ID if set
+	        id = ( id!=undefined ) ? "&project_id="+id : "";
+	        
+	        var offset = $(this).offset();
+	        
+	        // Loads the editing form and displays it
+	        $.ajax({
+	            type: "POST",
+	            url: processFile,
+	            data: "action="+action+id,
+	            success: function(data){
+	                // Hides the form
+	            	var form = $(data).hide();
+	            	
+	            //	console.log(data);
+
+	                // Make sure the modal window exists
+	               var  modal = fx.initModal()
+	                	.children(":not(.modal-close-btn)")
+	                    .remove()
+	                    .end();
+
+	                // Call the boxin function to create
+	                // the modal overlay and fade it in
+	                fx.boxin(null, modal, offset.top - 200);
+
+	                // Load the form into the window,
+	                // fades in the content, and adds
+	                // a class to the form
+	                form
+	                   .appendTo(modal)
+	                    .addClass("edit-form")
+	                    .fadeIn("fast");
+	            },
+	            error: function(msg){
+	                alert(msg);
+	            }
+	        });
+
+	    });
+	
+
 	
 	
 

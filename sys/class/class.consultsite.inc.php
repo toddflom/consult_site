@@ -256,7 +256,8 @@ class ConsultSite extends DB_Connect
 					
 			$link .= "<div class='video_title'>" . $projects[$i]['title'] . "</div></div>";
 		//	$link .= "<div class='horizontalRule'></div>";
-				
+			
+			$link .= $this->_adminProjectOptions($projects[$i]['project_id']);
 		
 			$html .= $ds . $link . $de;
 
@@ -436,6 +437,7 @@ class ConsultSite extends DB_Connect
 		 `client_project`.`tagline`,
 		 `client_project`.`copy`,
 		 `client_project`.`cta_url`,
+		 `project`.`project_id`,
 		 `project`.`title`,
 		 `project`.`video_url`,
 		 `project`.`image_url`
@@ -654,9 +656,43 @@ ADMIN_OPTIONS;
 		}
 	}
 	
+	
+	
+	
 
+	/**
+	 * Generates edit and delete options for a given project ID
+	 *
+	 * @param int $id the project ID to generate options for
+	 * @return string the markup for the edit/delete options
+	 */
+	private function _adminProjectOptions($id)
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+    <div class="project-admin-options">
+    <form action="assets/inc/process.inc.php" method="post">
+		<input type="submit" name="edit_project" value="Edit This Project" />
+    	<input type="hidden" name="project_id" value="$id" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    <form action="confirmProjectdelete.php" method="post">
+		<input type="submit" name="delete_project" value="Delete This Project" />
+		<input type="hidden" name="client_id" value="$id" />
+    </form>
+    </div><!-- end .project-admin-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
 	
 	
+
 
 	/**
 	 * Runs a suppiled SQL statment that has no binding variables
