@@ -17,7 +17,16 @@ class Admin extends DB_Connect
      * @var int the length of the password salt to use
      */
     private $_saltLength = 7;
+    
+    
+    /**
+     * Stores the video information inside the CL vimeo channel
+     *
+     * @var array 
+     */
+    private $_videos_array;
 
+    
     /**
      * Stores or creates a DB object and sets the salt length
      *
@@ -372,7 +381,7 @@ class Admin extends DB_Connect
     	if ( empty($_POST['client_id']) )
     	{
     		$sql = "INSERT INTO `client_project`
-    				(`logo_url`, `client`, tagline`, `copy`, `cta_url`)
+    				(`logo_url`, `client`, `tagline`, `copy`, `cta_url`)
     				VALUES
     				(:logo_url, :client, :tagline, :copy, :cta_url)";
     	}
@@ -609,7 +618,7 @@ CONFIRM_DELETE;
     	if ( !empty($id) )
     	{
     		$project = $this->_loadProjectById($id);
-    		$submit = "Edit This Project";
+    		$submit = "Save This Project";
     	}
     	else
     	{
@@ -624,47 +633,162 @@ CONFIRM_DELETE;
     	$image_url = $project[0]['image_url'];
     	 
     	$checked = $project[0]['is_featured'] == 1 ? 'checked' : '';
-    	$highlightBox = '<input type="checkbox" name="project_featured" value="1" ' . $checked . ' />';
+    	$highlightBox = '<input type="checkbox" name="project_featured" id=="project_featured" value="1" ' . $checked . ' />';
     	 
     	$clientDropMenu = $this->buildClientsDrop($project[0]['clientproj_id']);
     	
     	$vimeoDropMenu = $this->_buildVimeosDrop($project[0]['video_url']);
-    
+    	
+    	if ($thumbnail_url != '') {
+    		$thumbnail_url = '<img src="' . $thumbnail_url . '" />';
+    	} 
+    	
+    	if ($image_url != '') {
+    		$image_url = '<img src="' . $image_url . '" />';
+    	}
+    	    	
     	/*
     	 * Build the markup
     	*/
     	return <<<FORM_MARKUP
+    	<script type="text/javascript">
+	    	$(function() {
+	    		tinymce.init({
+					selector: [
+						"#thumbnail_url",
+						"#image_url"
+					], 
+					plugins: [
+					    "jbimages"
+					],
+					toolbar: "jbimages",
+					menubar: false,
+					relative_urls: false
+				});
+			});
+		</script>
          
-    <form action="assets/inc/process.inc.php" method="post" enctype="multipart/form-data">
+    <form class="project_edit" action="assets/inc/process.inc.php" method="post" enctype="multipart/form-data">
         <fieldset>
             <legend>$submit</legend>
             <div><label for="project_client_id">Client:</label>
             $clientDropMenu</div>
-            <div><label for="step_name">Project Title:</label>
+            <div><label for="project_title">Project Title:</label>
             <input type="text" name="project_title"
                   id="project_title" value="$title" /></div>
             <div><label for="project_featured">Project Featured on Main Page:</label>
             $highlightBox
             </div>
-            <div><label for="thumbnail_url">Project Thumbnail:</label>
+            <div id="thumb"><label for="thumbnail_url">Project Thumbnail (only needed if featured on main page);</label>
             <textarea name="thumbnail_url"
                   id="thumbnail_url">$thumbnail_url</textarea></div>
-            <div><label for="video_url">Vimeo Video:</label>
+            <div><label for="video_url">Vimeo Video (if needed):</label>
             $vimeoDropMenu</div>
-            <div><label for="image_url">URL for image:</label>
+            <div id="image"><label for="image_url">Project Photo (if needed):</label>
             <textarea name="image_url"
                   id="image_url">$image_url</textarea></div>
-            <input type="hidden" name="step_id" value="$project_id" />
+            <input type="hidden" name="project_id" value="$project_id" />
             <input type="hidden" name="token" value="$_SESSION[token]" />
-            <input type="hidden" name="action" value="project_edit" />
-            <input type="submit" name="project_submit" value="$submit" />
-            or <a href="./">cancel</a>
+            <input type="hidden" name="action" value="save_project" />
+            <input class="edit_project_submit" type="submit" name="save_project" value="$submit" />
+            or <input class="cancel_project_edit" type="submit" name="cancel_project_edit"
+                  value="Cancel" />
         </fieldset>
     </form>
 FORM_MARKUP;
     }
     
     
+    
+    public function saveProject()
+    {
+    	/*
+    	 * Exit if the action isn't set properly
+    	*/
+    	if ( $_POST['action']!='save_project' )
+    	{
+    		return "The method saveProject was accessed incorrectly";
+    	}
+    
+    	/*
+    	 * Escape data from the form
+    	*/
+    	 
+    	$clientproj_id = (int) $_POST['clientproj_id'];
+    	$title = $_POST['title'];
+    	$isFeatured = (int) $_POST['isFeatured'];
+    	$thumbnail_url = htmlentities($_POST['thumbnail_url'], ENT_QUOTES);
+    	$video_url = htmlentities($_POST['video_url'], ENT_QUOTES);
+    	$image_url = htmlentities($_POST['image_url'], ENT_QUOTES);
+   	
+    
+    	$id = (int) $_POST['project_id'];
+    
+    	error_log("project_id = " . $id);
+    
+    	/*
+    	 * If no project ID passed, create a new greeting
+    	*/
+    	if ( empty($_POST['project_id']) )
+    	{
+    		$sql = "INSERT INTO `project`
+    				(`clientproj_id`, `title`, `thumbnail_url`, `video_url`, `image_url`, `isFeatured`)
+    				VALUES
+    				(:clientproj_id, :title, :thumbnail_url, :video_url, :image_url, :isFeatured)";
+    	}
+    
+    	/*
+    	 * Update the project if it's being edited
+    	*/
+    	else
+    	{
+    		/*
+    		 * Cast the project ID as an integer for security
+    		*/
+    		$sql = "UPDATE `project`
+    		SET
+    		`clientproj_id`=:clientproj_id, `title`=:title, `thumbnail_url`=:thumbnail_url, `video_url`=:video_url, `image_url`=:image_url, `isFeatured`=:isFeatured
+    		WHERE `project_id`=$id";
+    	}
+    
+    	/*
+    	 * Execute the create or edit query after binding the data
+    	*/
+    	try
+    	{
+    		 
+    		error_log($sql);
+    		 
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(":clientproj_id", $clientproj_id, PDO::PARAM_INT);
+    		$stmt->bindParam(":title", $title, PDO::PARAM_STR);
+    		$stmt->bindParam(":thumbnail_url", $thumbnail_url, PDO::PARAM_STR);
+    		$stmt->bindParam(":video_url", $video_url, PDO::PARAM_STR);
+    		$stmt->bindParam(":image_url", $image_url, PDO::PARAM_STR);
+    		$stmt->bindParam(":isFeatured", $isFeatured, PDO::PARAM_INT);
+    		$stmt->execute();
+    		$stmt->closeCursor();
+    		/*
+    		 * Returns the ID of the project
+    		*/
+    		// return $this->db->lastInsertId();
+    		 
+    		if ($id > 0) {
+    			$project_id = $id;
+    		} else {
+    			$project_id = $this->db->lastInsertId();
+    		}
+    		 
+    		//  error_log($project_id, 0);
+    		 
+    		return $project_id;
+    		 
+    	}
+    	catch ( Exception $e )
+    	{
+    		return $e->getMessage();
+    	}
+    }
     
 
     /**
@@ -771,18 +895,28 @@ FORM_MARKUP;
     private function _buildVimeosDrop ($id = NULL)
     {
     
-    	require_once('/Users/toddflom/Desktop/MAMP root/Consultant Site/consult_site/vimeo/vimeo.php');
-    	$vimeo = new phpVimeo('3623b66c5e557a850636cc6f9c3c1c57c473236e', 'de839c39d834cce43ccf606869beda547d78bfad');
-    	$vimeo->setToken('207d88049f149371d72135d3acae4af1','ca82591c8fdcaedc5008eee783840c83b0bc1b67');    
-    
+    	if ( !isset($_videos_array) ) {
+	    	require_once('/Users/todd.flom/Desktop/Sites/Consultant Site/consult_site/vimeo/vimeo.php');
+	    	$vimeo = new phpVimeo('3623b66c5e557a850636cc6f9c3c1c57c473236e', 'de839c39d834cce43ccf606869beda547d78bfad');
+	    	$vimeo->setToken('207d88049f149371d72135d3acae4af1','ca82591c8fdcaedc5008eee783840c83b0bc1b67');    
+	    	$result = $vimeo->call('vimeo.videos.getAll', array('page' => '1',  'perpage' => '50'));
+	    	$videos = $result->videos->video;
+	    	
+	    	$novideo = new stdClass; // generic object in PHP
+	    	$novideo->id = '';
+	    	$novideo->title = "NO VIDEO";
+	    	
+	    	array_unshift($videos, $novideo );
+	    	
+	    	$_videos_array = $videos;
+    	} else {
+    		$videos = $_videos_array;
+    	}
+    	
     	$html = '<select id="videos" name="videos[]">';  // Posts as an enumeratable array
-    
-    	$output = '<div class="albumGallery">';
-    	$result = $vimeo->call('vimeo.videos.getAll', array('page' => '1',  'perpage' => '50'));
-    	$videos = $result->videos->video;
+    	
     	foreach ($videos as $video) {
     		// error_log($id);
-    		 
     		$html .= '<option value="'
     				. $video->id
     				. '" ';
@@ -795,56 +929,20 @@ FORM_MARKUP;
     			}
     		}
     		 
-    		 
-    		$html .= '>'
+	   		$html .= '>'
     				. $video->title
     				. '</option>';
-    		 
-    	}
-    
-    	$html .= '</select>';
-    
-    	return $html;
-    
+    		
+    		if ($video->id == '') {
+    			$html .= '<optgroup style="border-top: 1px dotted #ccc; margin: 5px 0;"></optgroup>';
+    		}
+   		}
+   
+    	$html .= '</select>';   
+    	return $html;    
     }
     
-
-
-
-    /**
-     * Load Vimeo gallery
-     */
-    
-    private function _loadVimeoLibrary() {
-    	// Any time you want to call the Advanced API, your PHP will start with these 3 lines:
-    	require_once('/Users/toddflom/Desktop/MAMP root/Consultant Site/consult_site/vimeo/vimeo.php');
-    	$vimeo = new phpVimeo('3623b66c5e557a850636cc6f9c3c1c57c473236e', 'de839c39d834cce43ccf606869beda547d78bfad');
-    	$vimeo->setToken('207d88049f149371d72135d3acae4af1','ca82591c8fdcaedc5008eee783840c83b0bc1b67');
-    
-    	// Here is a sample snippet for generating an gallery from a vimeo album (which is not limited to 20 videos like the basic API), and should get you started taking advantage of the Advanced API. In modx, you would call this snippet with the album ID for which you want a gallery
-    
-    	$output = '<div class="albumGallery">';
-    	$result = $vimeo->call('vimeo.videos.getAll', array('page' => '1',  'perpage' => '50'));
-    	$videos = $result->videos->video;
-    	foreach ($videos as $video) {
-    			
-    		$output .= ' <a href="'.$video->urls->url[0]->_content.'" title="'.$video->title.'" rel="zoombox[group]">';
-    		$output .= '  <div class="albumGalleryItem">';
-    		$output .= '   <div class="ImgContainer">'.$video->id.'</div>';
-    		$output .= '   <div class="albumGalleryCaption">'.$video->title.'</div>';
-    		$output .= '  </div>';
-    		$output .= ' </a>';
-    	}
-    
-    	$output .= '</div>';
-    
-    	return $output;
-    }
-    
-    
-    
-    
-    
+       
     
     
     

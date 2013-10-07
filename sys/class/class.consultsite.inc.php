@@ -220,9 +220,9 @@ class ConsultSite extends DB_Connect
 				
 				$link .= "<div class='client_info'>"
 						. "<div class='logo_img'><img class='logo' src='" . $logo_url . "' /></div>"
-						. "<div class='client minedit'>" .  $client . "</div>"
-						. "<div class='tagline minedit'>" .  $tagline . "</div>"
-						. "<div class='copy fulledit'>" .  $copy . "</div>"
+						. "<div class='client'>" .  $client . "</div>"
+						. "<div class='tagline'>" .  $tagline . "</div>"
+						. "<div class='copy'>" .  $copy . "</div>"
 						. "<div class='cta'>" .  $cta_url . "</div>";
 				
 				$link .= $this->_adminClientOptions($projects[$i]['clientproj_id']);

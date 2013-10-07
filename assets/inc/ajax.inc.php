@@ -73,6 +73,10 @@ $actions = array(
 		'confirm_project_delete' => array(
 				'object' => 'Admin',
 				'method' => 'confirmProjectDelete'
+		),
+		'save_project' => array(
+				'object' => 'Admin',
+				'method' => 'saveProject'
 		)
 		
 		

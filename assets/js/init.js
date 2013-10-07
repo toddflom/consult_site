@@ -67,7 +67,7 @@ jQuery(function($){
 
             modal
         	.css("top", top);
-            console.log(top);
+            // console.log(top);
 
             // Fades in the modal window // and overlay
             // $(".modal-window") //,.modal-overlay")
@@ -519,7 +519,55 @@ jQuery(function($){
 	
 	
 	
-	
+	$(".project_edit .edit_project_submit").live("click", function(event){
+		
+		event.preventDefault();
+
+		var clientproj_id = "&clientproj_id="+encodeURIComponent($(this).siblings().find('#clients').val());
+		var title = "&title="+encodeURIComponent($(this).siblings().find('#project_title').val());
+		
+		var isFeatured = "&isFeatured="+encodeURIComponent(($(this).siblings().find('#project_featured').is(':checked') ? 1 : 0));
+
+		var txt = tinymce.get('thumbnail_url').getContent();
+		var txthtml = $(txt).html();
+		var thumbnail_url = "&thumbnail_url="+encodeURIComponent($(txthtml).attr('src'));
+				
+		var video_url = "&video_url="+encodeURIComponent($(this).siblings().find('#videos').val());
+		
+		txt = tinymce.get('image_url').getContent();
+		txthtml = $(txt).html();
+		var image_url = "&image_url="+encodeURIComponent($(txthtml).attr('src'));
+
+		// console.log(clientproj_id + "   " + title + '   ' + isFeatured + '   ' + thumbnail_url + '   ' + video_url + '   ' + image_url + '   '); 
+		
+		// Sets the action for the form submission
+        var action = $(event.target).attr("name") || "edit_project";
+        
+        // Saves the value of the project_id input
+        id = $(this).siblings("input[name=project_id]").val();
+        
+        // Creates an additional param for the ID if set
+        id = ( id!=undefined ) ? "&project_id="+id : "";
+        
+        var data = clientproj_id + title + isFeatured + thumbnail_url + video_url + image_url;
+        
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action+id + data,
+            success: function(data){
+            	// console.log("SUCCESS!!");
+            	
+            	fx.boxout();
+                
+                loadProjectsPage();
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+
+	});
 	
 	
 	
@@ -529,6 +577,7 @@ jQuery(function($){
 				
 		// console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
 
+		// Can't use tinymce.getContent() here because of repeating regions
 		var logo_url = "&logo_url="+encodeURIComponent($(this).parent().parent().siblings('.logo_img').find('img').attr('src'));
         var client = "&client="+encodeURIComponent($(this).parent().parent().siblings('.client').html());
         var tagline = "&tagline="+encodeURIComponent($(this).parent().parent().siblings('.tagline').html());
@@ -540,7 +589,7 @@ jQuery(function($){
         
         var cta_url = "&cta_url="+encodeURIComponent('<a href="' + url + '" target="_blank" >' + txt + '</a>' ); //.find('a').attr('href'));
 
-        console.log(cta_url.toString());
+        // console.log(cta_url.toString());
         
         
 		// Sets the action for the form submission
@@ -714,7 +763,7 @@ jQuery(function($){
 	
 	$(".client_delete.edit-form input[type=submit]").live("click", function(event){
 		
-		console.log("delete client form click");
+		// console.log("delete client form click");
 
         // Prevents the default form action from executing
         event.preventDefault();
@@ -752,10 +801,10 @@ jQuery(function($){
            success: function(data) {
             	// If this is a deleted client, removes
                 // it from the markup
-                if ( remove===true )
-                {
-                   fx.removedefinition();
-                }
+               // if ( remove===true )
+               // {
+               //    fx.removedefinition();
+               // }
                 
               // console.log("data = " + data);
                 
@@ -763,16 +812,7 @@ jQuery(function($){
                 fx.boxout();
                 
                 loadProjectsPage();
-                
-                /*
-                // If this is a new client, adds it to
-                // the process
-               if ( $("[name=client_id]").val()==0  && remove===false )
-               {
-                    fx.adddefinition(data, formData);
-                }
-                */
-            },
+             },
             error: function(msg) {
                 alert(msg);
             }
@@ -798,13 +838,16 @@ jQuery(function($){
 	
 	
 	
-	
+	$(".edit-form .cancel_project_edit").live("click", function(event) {
+		event.preventDefault();
+		fx.boxout();
+	});
 	
 	
 	// Displays the project edit form as a modal window
 	$(".project-admin-options form input[type=submit]").live("click", function(event){
 
-			console.log("project admin form click");
+			// console.log("project admin form click");
 
 			// Prevents the form from submitting
 	        event.preventDefault();

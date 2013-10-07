@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Oct 04, 2013 at 12:31 PM
+-- Generation Time: Oct 07, 2013 at 10:32 AM
 -- Server version: 5.5.9
 -- PHP Version: 5.3.6
 
@@ -68,11 +68,11 @@ CREATE TABLE `client_project` (
 -- Dumping data for table `client_project`
 --
 
-INSERT INTO `client_project` VALUES(1, '<p>Tempur-Pedic test<br></p>', '/imgupload/tempur-pedic_logo.gif', '<p>You are how you sleep.</p>', '<p>Tempur-Pedic knows that when you get a great nightâ€™s sleep, the world notices. And when you donâ€™t? Well, the world notices that, too.</p>', '<a target="_blank" href="http://carmichaellynch.com/category/tempur-pedic/">Learn More</a>');
+INSERT INTO `client_project` VALUES(1, '<p>Tempur-Pedic<br></p>', '/imgupload/tempur-pedic_logo.gif', '<p>You are how you sleep.</p>', '<p>Tempur-Pedic knows that when you get a great nightâ€™s sleep, the world notices. And when you donâ€™t? Well, the world notices that, too.</p>', '<a href=\\"http://carmichaellynch.com/category/tempur-pedic/\\" target=\\"_blank\\" >Learn More</a>');
 INSERT INTO `client_project` VALUES(2, 'Subaru', 'imgupload/Subaru_logo.png', 'Love. It''s what makes a Subaru ', 'A portrait of the artist as a young Subaru owner. In this commercial, a surprise gift awakens a man''s passion to capture the beauty he sees from the driver''s seat of his Symmetrical All-Wheel Drive Outback.', '<a target="_blank" href="http://carmichaellynch.com/category/subaru/">Learn More</a>');
 INSERT INTO `client_project` VALUES(3, 'American Standard', 'imgupload/American Standard_logo.png', 'Celebrate the Indoors.', 'What people do in the privacy of their own home is a scream in this new spot . Put on your monster mask, and join us for a new campaign created to celebrate the indoors. It’s where some of life’s best moments happen.', '<a target="_blank" href="http://carmichaellynch.com/category/american-standard/">Learn More</a>');
 INSERT INTO `client_project` VALUES(4, 'Mattel', 'imgupload/Mattel Logo No Box-709512_logo.png', 'Play with Barbie.', 'Donec sollicitudin molestie malesuada. Cras ultricies ligula sed magna dictum porta. Proin eget tortor risus.', '<a target="_blank" href="#">Learn More</a>');
-INSERT INTO `client_project` VALUES(5, 'Jack Link’s', 'imgupload/jack-links_logo.png', 'Messin’ with Sasquatch', 'Let sleeping Sasquatch lie. That’s the obvious moral behind this new Jack Link’s spot in which three hapless coworkers decide to employ one of the greatest party pranks of all time on He-Who-Should-Not-Be-Messed-With. Watch and learn, human.', '<a target="_blank" href="http://carmichaellynch.com/category/jack-links/">Learn More</a>');
+INSERT INTO `client_project` VALUES(5, '<p>Jack Linkâ€™s</p>', 'imgupload/jack-links_logo.png', '<p>Messinâ€™ with Sasquatch</p>', '<p>Let sleeping Sasquatch lie. Thatâ€™s the obvious moral behind this new Jack Linkâ€™s spot in which three hapless coworkers decide to employ one of the greatest party pranks of all time on He-Who-Should-Not-Be-Messed-With. Watch and learn, human.</p>', '<a href=\\"http://carmichaellynch.com/category/jack-links/\\" target=\\"_blank\\" >Learn More</a>');
 
 -- --------------------------------------------------------
 
