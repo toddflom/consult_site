@@ -403,7 +403,11 @@ jQuery(function($){
 
 	
 	$("#header_wrapper>.clLogo").click(function(event) {
+		event.preventDefault();
+
 		loadLandingPage();
+		
+		$(this).siblings('#header_nav').children().removeClass('active');
 	});
 	
 	
@@ -573,7 +577,7 @@ jQuery(function($){
 	
 	
 	
-	$(".client-admin-options>form>.admin").live("click", function(event){
+	$(".client-admin-options>form>.admin, .add-client-admin-options>form>input[type=submit]").live("click", function(event){
 
 		event.preventDefault();
 				
@@ -600,8 +604,15 @@ jQuery(function($){
         // Saves the value of the client_id input
         id = $(this).siblings("input[name=client_id]").val();
         
+        if (id == undefined || id == '') {
+        	var reload = true;
+        }
+        
+        
         // Creates an additional param for the ID if set
         id = ( id!=undefined ) ? "&client_id="+id : "";
+        
+        
         
         var data = logo_url + client + tagline + copy + cta_url;
         
@@ -611,6 +622,9 @@ jQuery(function($){
             data: "action="+action+id + data,
             success: function(data){
             	console.log("SUCCESS!!");
+            	if (reload) {
+            		addNewProject(data);
+            	}
             },
             error: function(msg){
                 alert(msg);
@@ -618,6 +632,36 @@ jQuery(function($){
         });
         
 	});
+	
+	
+	
+	function addNewProject(id){
+		
+		var clientproj_id = id;
+		// Sets the action for the form submission
+        var action = "save_project";
+       
+        
+        var data = "&clientproj_id="+ clientproj_id;
+        
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            	
+            	// fx.boxout();
+                
+                loadProjectsPage();
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+
+
+	}
 	
 	
 	
@@ -800,14 +844,7 @@ jQuery(function($){
             type: "POST",
             url: processFile,
             data: formData,
-           success: function(data) {
-            	// If this is a deleted client, removes
-                // it from the markup
-               // if ( remove===true )
-               // {
-               //    fx.removedefinition();
-               // }
-                
+           success: function(data) {                
               // console.log("data = " + data);
                 
                 // Fades out the modal window
@@ -840,14 +877,14 @@ jQuery(function($){
 	
 	
 	
-	$(".edit-form .cancel_project_edit").live("click", function(event) {
+	$(".edit-form .cancel_project_edit, .edit-form #cancel_project_delete").live("click", function(event) {
 		event.preventDefault();
 		fx.boxout();
 	});
 	
 	
 	// Displays the project edit form as a modal window
-	$(".project-admin-options form input[type=submit]").live("click", function(event){
+	$(".project-admin-options form input[type=submit], .add-project-admin-options form input[type=submit]").live("click", function(event){
 
 			// console.log("project admin form click");
 
@@ -862,8 +899,81 @@ jQuery(function($){
 	        .siblings("input[name=project_id]")
 	            .val();
 	        
+	        console.log('id = ' + id);
+	        
 	        // Creates an additional param for the ID if set
 	        id = ( id!=undefined ) ? "&project_id="+id : "";
+	        
+	        // Saves the value of the client_id input
+	        cid = $(event.target)
+	        .siblings("input[name=client_id]")
+	            .val();
+	        
+	        // Creates an additional param for the ID if set
+	        cid = ( cid!=undefined ) ? "&client_id="+id : "";
+
+	        
+	        
+	        var offset = $(this).offset();
+	        
+	        // Loads the editing form and displays it
+	        $.ajax({
+	            type: "POST",
+	            url: processFile,
+	            data: "action="+action+id+cid,
+	            success: function(data){
+	                // Hides the form
+	            	var form = $(data).hide();
+	            	
+	            //	console.log(data);
+
+	                // Make sure the modal window exists
+	               var  modal = fx.initModal()
+	                	.children(":not(.modal-close-btn)")
+	                    .remove()
+	                    .end();
+
+	                // Call the boxin function to create
+	                // the modal overlay and fade it in
+	                fx.boxin(null, modal, offset.top - 200);
+
+	                // Load the form into the window,
+	                // fades in the content, and adds
+	                // a class to the form
+	                form
+	                   .appendTo(modal)
+	                    .addClass("edit-form")
+	                    .fadeIn("fast");
+	            },
+	            error: function(msg){
+	                alert(msg);
+	            }
+	        });
+
+	    });
+	
+	
+	
+	
+	
+	// Displays the project edit form as a modal window
+	$(".project-admin-options form input[name=delete_project]").live("click", function(event){
+
+			console.log("project admin form click");
+
+			// Prevents the form from submitting
+	        event.preventDefault();
+	        
+	        // Sets the action for the form submission
+	        var action = $(event.target).attr("name") || "delete_project";
+	        
+	        // Saves the value of the step_id input
+	        id = $(event.target)
+	        .siblings("input[name=project_id]")
+	            .val();
+	        
+	        // Creates an additional param for the ID if set
+	        id = ( id!=undefined ) ? "&project_id_id="+id : "";
 	        
 	        var offset = $(this).offset();
 	        
@@ -902,10 +1012,62 @@ jQuery(function($){
 	        });
 
 	    });
-	
+
 
 	
 	
+	
+	$(".project_delete.edit-form input[type=submit]").live("click", function(event){
+		
+		// console.log("delete project form click");
+
+        // Prevents the default form action from executing
+        event.preventDefault();
+        
+       // Serializes the form data for use with $.ajax()
+        var formData = $(this).parents("form").serialize();
+       
+	    // Stores the value of the submit button
+	    submitVal = $(this).val();
+	    
+	    // Determines if the client should be removed
+        remove = false;
+	
+	    // If this is the deletion form, appends an action
+	    if ( $(this).attr("name")=="confirm_project_delete" )
+	    {
+	        // Adds necessary info to the query string
+	        formData += "&action=confirm_project_delete"
+	            + "&confirm_project_delete="+submitVal;
+
+		     // If the client is really being deleted, sets
+		     // a flag to remove it from the markup
+            if ( submitVal=="Confirm Delete" )
+            {
+               remove = true;
+            }
+	    }
+	    
+	    
+        // Sends the data to the processing file
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: formData,
+           success: function(data) {               
+              // console.log("data = " + data);
+                
+                // Fades out the modal window
+                fx.boxout();
+                
+                loadProjectsPage();
+             },
+            error: function(msg) {
+                alert(msg);
+            }
+        });
+
+	});
 
 	
 });

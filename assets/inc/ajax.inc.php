@@ -77,7 +77,7 @@ $actions = array(
 		'save_project' => array(
 				'object' => 'Admin',
 				'method' => 'saveProject'
-		)
+		)		
 		
 		
 		

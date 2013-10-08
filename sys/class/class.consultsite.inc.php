@@ -194,6 +194,10 @@ class ConsultSite extends DB_Connect
 				
 		$tot_projects = count($projects);
 		
+		if ($tot_projects <= 0) {
+			$this->_adminAddProjectOptions($projects[$i]['clientproj_id']);
+		}
+		
 		$last_index;
 		
 		for ($i = 0; $i < $tot_projects; $i++) {
@@ -216,8 +220,6 @@ class ConsultSite extends DB_Connect
 				$copy = html_entity_decode($projects[$i]['copy'], ENT_QUOTES, "utf-8" );
 				$cta_url = stripslashes(html_entity_decode($projects[$i]['cta_url'], ENT_QUOTES, "utf-8" ));
 		
-				
-				
 				$link .= "<div class='client_info'>"
 						. "<div class='logo_img'><img class='logo' src='" . $logo_url . "' /></div>"
 						. "<div class='client'>" .  $client . "</div>"
@@ -233,9 +235,16 @@ class ConsultSite extends DB_Connect
 				$ds = "";
 			}
 			
+			$de = '';
+			
+			if ($this_index != $projects[$i + 1]['clientproj_id']) {
+				$de .= $this->_adminAddProjectOptions($projects[$i]['clientproj_id']);
+			}
+				
+			
 			if ($i + 1 < $tot_projects) {
 				if ($this_index != $projects[$i + 1]['clientproj_id']) {
-					$de = "<div class='horizontalRule'></div></div>";
+					$de .= "<div class='horizontalRule'></div></div>";
 				}
 			}	
 			
@@ -258,15 +267,16 @@ class ConsultSite extends DB_Connect
 		//	$link .= "<div class='horizontalRule'></div>";
 			
 			$link .= $this->_adminProjectOptions($projects[$i]['project_id']);
-		
+
 			$html .= $ds . $link . $de;
 
 			$last_index = $this_index;
-			
-				
 		}
 		
 		$html .= "</div><!-- end of projects -->";
+		
+		$html .= $this->_adminAddClientOptions();
+		
 		
 		return $html;
 	}
@@ -298,6 +308,8 @@ class ConsultSite extends DB_Connect
 				$link .= "<div class='pdf'><a href='" .  $news[$i]['pdf_url'] . "' target='_blank'>Download PDF</a></div>";
 	
 			}
+			
+			$link .= $this->_adminNewsOptions($news[$i]['id']);
 			
 			//error_log("i = " . $i . " mod 3 = " . $i % 3);
 			
@@ -444,7 +456,9 @@ class ConsultSite extends DB_Connect
 		 FROM
 		 `client_project`, `project`
 		 WHERE
-		 `client_project`.`clientproj_id` = `project`.`clientproj_id`;";
+		 `client_project`.`clientproj_id` = `project`.`clientproj_id`
+		ORDER BY
+		`client_project`.`clientproj_id`;";
 		
 		try
 		{
@@ -498,7 +512,9 @@ class ConsultSite extends DB_Connect
 				WHERE 
 				`client_project`.`clientproj_id` = `project`.`clientproj_id` 
 				AND 
-				`project`.`is_featured` = 1;";
+				`project`.`is_featured` = 1
+				ORDER BY
+				`client_project`.`clientproj_id`;";
 		
 		try
 		{
@@ -680,7 +696,7 @@ ADMIN_OPTIONS;
     </form>
     <form action="confirmProjectdelete.php" method="post">
 		<input type="submit" name="delete_project" value="Delete This Project" />
-		<input type="hidden" name="client_id" value="$id" />
+		<input type="hidden" name="project_id" value="$id" />
     </form>
     </div><!-- end .project-admin-options -->
 ADMIN_OPTIONS;
@@ -690,6 +706,100 @@ ADMIN_OPTIONS;
 			return NULL;
 		}
 	}
+	
+	
+	
+	/**
+	 * Generates Add options for a given client ID
+	 *
+	 * @param int $id the cleint ID to generate new project options for
+	 * @return string the markup for the add options
+	 */
+	private function _adminAddProjectOptions($id)
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+    <div class="add-project-admin-options">
+    <form action="assets/inc/process.inc.php" method="post">
+		<input type="submit" name="edit_project" value="Add a New Project" />
+    	<input type="hidden" name="client_id" value="$id" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    </div><!-- end .add-project-admin-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	
+	
+	
+	
+
+	/**
+	 * Generates Add Client options
+	 *
+	 * @return string the markup for the add options
+	 */
+	private function _adminAddClientOptions()
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+    <div class="add-client-admin-options">
+    <form action="assets/inc/process.inc.php" method="post">
+		<input type="submit" name="edit_client" value="Add a New Client" />
+    	<input type="hidden" name="client_id" value="" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    </div><!-- end .add-client-admin-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	
+	
+	
+
+	/**
+	 * Generates edit and delete options for a given news ID
+	 *
+	 * @param int $id the news ID to generate options for
+	 * @return string the markup for the edit/delete options
+	 */
+	private function _adminNewsOptions($id)
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+    <div class="client-news-options">
+    <form action="assets/inc/process.inc.php" method="post">
+		<a class="admin" href="#">Save Edits</a>
+		<input type="hidden" name="news_id" value="$id" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    <form action="confirmNewsdelete.php" method="post">
+		<input type="submit" name="delete_news" value="Delete This News Article" />
+		<input type="hidden" name="news_id" value="$id" />
+    </form>
+    </div><!-- end .client-news-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	
 	
 	
 

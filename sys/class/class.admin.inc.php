@@ -363,17 +363,29 @@ class Admin extends DB_Connect
     	/*
     	 * Escape data from the form
     	*/
-    	
-    	$logo_url = htmlentities($_POST['logo_url'], ENT_QUOTES);
-    	$client = $_POST['client'];
-    	$tagline = $_POST['tagline'];
-    	$copy = $_POST['copy']; // htmlentities($_POST['copy'], ENT_QUOTES);
-    	/* $cta_url = htmlentities($_POST['cta_url'], ENT_QUOTES); */
-    	$cta_url = $_POST['cta_url'];
-    	 
-    	$id = (int) $_POST['client_id'];
+    	if ( empty($_POST['client_id'])) {
+		
+    		$logo_url = '';
+    		$client = 'New Client';
+    		$tagline = 'Please enter a tagline';
+    		$copy = 'Please enter some copy';
+    		$cta_url = 'Learn More';
+    		
+    		$id = 0;
+    		
+    	} else {
+
+    		$logo_url = htmlentities($_POST['logo_url'], ENT_QUOTES);
+    		$client = $_POST['client'];
+    		$tagline = $_POST['tagline'];
+    		$copy = $_POST['copy'];
+    		$cta_url = $_POST['cta_url'];
+    		
+    		$id = (int) $_POST['client_id'];
+   		}
+    		
     
-    	error_log("client_id = " . $id);
+    	// error_log("client_id = " . $id);
     
     	/*
     	 * If no greeting ID passed, create a new greeting
@@ -383,7 +395,7 @@ class Admin extends DB_Connect
     		$sql = "INSERT INTO `client_project`
     				(`logo_url`, `client`, `tagline`, `copy`, `cta_url`)
     				VALUES
-    				(:logo_url, :client, :tagline, :copy, :cta_url)";
+    				(:logo_url, :client, :tagline, :copy, :cta_url);";
     	}
     
     	/*
@@ -619,19 +631,30 @@ CONFIRM_DELETE;
     	{
     		$project = $this->_loadProjectById($id);
     		$submit = "Save This Project";
+    		
+    		$project_id = $project[0]['project_id'];
+    		$clientproj_id = $project[0]['clientproj_id'];
+    		$title = strip_tags($project[0]['title']);
+    		$thumbnail_url = $project[0]['thumbnail_url'];
+    		$video_url = $project[0]['video_url'];
+    		$image_url = $project[0]['image_url'];
+    		$is_featured = $project[0]['is_featured'];
+    		
     	}
     	else
     	{
-    		// $project = new Step(NULL, $this->db);
+    		$submit = "Add This Project";
+    		
+    		$project_id = '';
+    		$clientproj_id = (int)$_POST['clientproj_id'];
+    		$title = '';
+    		$thumbnail_url = '';
+    		$video_url = '';
+    		$image_url = '';
+    		$is_featured = '';
+    		
     	}
  
-    	$project_id = $project[0]['project_id'];
-    	$clientproj_id = $project[0]['clientproj_id'];
-    	$title = strip_tags($project[0]['title']);
-    	$thumbnail_url = $project[0]['thumbnail_url'];
-    	$video_url = $project[0]['video_url'];
-    	$image_url = $project[0]['image_url'];
-    	$is_featured = $project[0]['is_featured'];
     	
     	// error_log('$is_featured = ' . $is_featured);
     	 
@@ -705,10 +728,11 @@ FORM_MARKUP;
     
     public function saveProject()
     {
+    	
     	/*
     	 * Exit if the action isn't set properly
     	*/
-    	if ( $_POST['action']!='save_project' )
+    	if ( $_POST['action']!='save_project')
     	{
     		return "The method saveProject was accessed incorrectly";
     	}
@@ -716,30 +740,38 @@ FORM_MARKUP;
     	/*
     	 * Escape data from the form
     	*/
-    	 
+
     	$clientproj_id = (int) $_POST['clientproj_id'];
-    	$title = $_POST['title'];
-    	$is_featured = (int) $_POST['is_featured'];
-    	$thumbnail_url = htmlentities($_POST['thumbnail_url'], ENT_QUOTES);
-    	$video_url = htmlentities($_POST['video_url'], ENT_QUOTES);
-    	$image_url = htmlentities($_POST['image_url'], ENT_QUOTES);
-   	
-    	$thumbnail_url = ($thumbnail_url == 'undefined' ? "" : $thumbnail_url);
-    	$image_url = ($image_url == 'undefined' ? "" : $image_url);
     	 
+    	if ( empty($_POST['project_id']) ) {
+	   		$id = 0;
+	   		
+	   		$title = 'New Project';
+	   		$is_featured = 0;
+	   		$thumbnail_url = '';
+	   		$video_url = '';
+	   		$image_url = '';
+	   		
+	   		
+    	} else {
+    		$id = (int) $_POST['project_id'];
+    		
+    		$title = $_POST['title'];
+    		$is_featured = (int) $_POST['is_featured'];
+    		$thumbnail_url = htmlentities($_POST['thumbnail_url'], ENT_QUOTES);
+    		$video_url = htmlentities($_POST['video_url'], ENT_QUOTES);
+    		$image_url = htmlentities($_POST['image_url'], ENT_QUOTES);
+    		
+    	    if ($video_url != 'undefined' && $video_url != '') {
+	    		$image_url = ''; // remove img url because we have a video
+	    	}    	 
+   		}
+  	
     	
-    	
-    	if ($video_url != 'undefined' && $video_url != '') {
-    		$image_url = ''; // remove img url because we have a video
-    	}    	 
-    	
-    	
-    	$is_admin = ($user['permissions'] == 'admin' ? true : false);
-    	
+    //	$is_admin = ($user['permissions'] == 'admin' ? true : false);
     	
     
-    	$id = (int) $_POST['project_id'];
-    
+    	/*
     	error_log("project_id = " . $id);
     	error_log("clientproj_id = " . $clientproj_id);
     	error_log("title = " . $title);
@@ -747,6 +779,7 @@ FORM_MARKUP;
     	error_log("thumbnail_url = " . $thumbnail_url);
     	error_log("video_url = " . $video_url);
     	error_log("image_url = " . $image_url);
+    	*/
     	 
     	/*
     	 * If no project ID passed, create a new greeting
@@ -756,7 +789,7 @@ FORM_MARKUP;
     		$sql = "INSERT INTO `project`
     				(`clientproj_id`, `title`, `thumbnail_url`, `video_url`, `image_url`, `is_featured`)
     				VALUES
-    				(:clientproj_id, :title, :thumbnail_url, :video_url, :image_url, :is_featured)";
+    				(:clientproj_id, :title, :thumbnail_url, :video_url, :image_url, :is_featured);";
     	}
     
     	/*
@@ -788,7 +821,11 @@ FORM_MARKUP;
     		$stmt->bindParam(":video_url", $video_url, PDO::PARAM_STR);
     		$stmt->bindParam(":image_url", $image_url, PDO::PARAM_STR);
     		$stmt->bindParam(":is_featured", $is_featured, PDO::PARAM_INT);
-    		$stmt->bindParam(":project_id", $id, PDO::PARAM_INT);
+    		
+    		if ( !empty($_POST['project_id']) ) {
+    			$stmt->bindParam(":project_id", $id, PDO::PARAM_INT);
+    		}
+    		
     		$stmt->execute();
     		$stmt->closeCursor();
     		/*
@@ -812,6 +849,105 @@ FORM_MARKUP;
     		return $e->getMessage();
     	}
     }
+    
+    
+    
+    
+    public function confirmProjectDelete($id)
+    {
+    	/*
+    	 * Make sure an ID was passed
+    	*/
+    	if ( empty($id) ) { return NULL; }
+    
+    	/*
+    	 * Make sure the ID is an integer
+    	*/
+    	$id = preg_replace('/[^0-9]/', '', $id);
+    
+    	/*
+    	 * If the confirmation form was submitted and the form
+    	* has a valid token, check the form submission
+    	*/
+    	if ( isset($_POST['confirm_project_delete'])
+    			&& $_POST['token']==$_SESSION['token'] )
+    	{
+    		/*
+    		 * If the deletion is confirmed, remove the client
+    		* from the database
+    		*/
+    		if ( $_POST['confirm_project_delete']=="Confirm Delete" )
+    		{
+    			$sql = "DELETE FROM `project`
+    			WHERE `project_id`=:id
+                            LIMIT 1";
+    			try
+    			{
+    				$stmt = $this->db->prepare($sql);
+    				$stmt->bindParam(
+    						":id",
+    						$id,
+    						PDO::PARAM_INT
+    				);
+    				$stmt->execute();
+    				$stmt->closeCursor();
+    				//	header("Location: ./");
+    				return;
+    			}
+    			catch ( Exception $e )
+    			{
+    				return $e->getMessage();
+    			}
+    		}
+    
+    		/*
+    		 * If not confirmed, sends the user to the main view
+    		*/
+    		else
+    		{
+    			echo "didn't work";
+    			//	header("Location: ./");
+    			return;
+    		}
+    	}
+    
+    	/*
+    	 * If the confirmation form hasn't been submitted, display it
+    	*/
+    	$project = $this->_loadProjectById($id);
+    
+    
+    	$projectName = strip_tags($project[0]['title']);
+    	$project_id = $project[0]['project_id'];
+    	 
+    	 
+    	//	error_log("client = " . implode(",", $client));
+    
+    	return <<<CONFIRM_DELETE
+    
+    <form class="project_delete" action="confirmdelete.php" method="post">
+        <h2>
+            Are you sure you want to delete "$projectName"?
+        </h2>
+        <p>There is <strong>no undo</strong> if you continue.</p>
+        <p>
+            <input type="submit" name="confirm_project_delete"
+                  value="Confirm Delete" />
+            <input type="submit" id="cancel_project_delete" name="confirm_project_delete"
+                  value="Cancel" />
+            <input type="hidden" name="project_id"
+                  value="$project_id" />
+            <input type="hidden" name="token"
+                  value="$_SESSION[token]" />
+        </p>
+    </form>
+CONFIRM_DELETE;
+    }
+    
+    
+    
+    
+    
     
 
     /**
