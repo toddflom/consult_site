@@ -631,9 +631,12 @@ CONFIRM_DELETE;
     	$thumbnail_url = $project[0]['thumbnail_url'];
     	$video_url = $project[0]['video_url'];
     	$image_url = $project[0]['image_url'];
+    	$is_featured = $project[0]['is_featured'];
+    	
+    	// error_log('$is_featured = ' . $is_featured);
     	 
-    	$checked = $project[0]['is_featured'] == 1 ? 'checked' : '';
-    	$highlightBox = '<input type="checkbox" name="project_featured" id=="project_featured" value="1" ' . $checked . ' />';
+    	$checked = $is_featured == '1' ? 'checked' : '';
+    	$highlightBox = '<input type="checkbox" name="project_featured" id="project_featured" value="1" ' . $checked . ' />';
     	 
     	$clientDropMenu = $this->buildClientsDrop($project[0]['clientproj_id']);
     	
@@ -716,25 +719,44 @@ FORM_MARKUP;
     	 
     	$clientproj_id = (int) $_POST['clientproj_id'];
     	$title = $_POST['title'];
-    	$isFeatured = (int) $_POST['isFeatured'];
+    	$is_featured = (int) $_POST['is_featured'];
     	$thumbnail_url = htmlentities($_POST['thumbnail_url'], ENT_QUOTES);
     	$video_url = htmlentities($_POST['video_url'], ENT_QUOTES);
     	$image_url = htmlentities($_POST['image_url'], ENT_QUOTES);
    	
+    	$thumbnail_url = ($thumbnail_url == 'undefined' ? "" : $thumbnail_url);
+    	$image_url = ($image_url == 'undefined' ? "" : $image_url);
+    	 
+    	
+    	
+    	if ($video_url != 'undefined' && $video_url != '') {
+    		$image_url = ''; // remove img url because we have a video
+    	}    	 
+    	
+    	
+    	$is_admin = ($user['permissions'] == 'admin' ? true : false);
+    	
+    	
     
     	$id = (int) $_POST['project_id'];
     
     	error_log("project_id = " . $id);
-    
+    	error_log("clientproj_id = " . $clientproj_id);
+    	error_log("title = " . $title);
+    	error_log("is_featured = " . $is_featured);
+    	error_log("thumbnail_url = " . $thumbnail_url);
+    	error_log("video_url = " . $video_url);
+    	error_log("image_url = " . $image_url);
+    	 
     	/*
     	 * If no project ID passed, create a new greeting
     	*/
     	if ( empty($_POST['project_id']) )
     	{
     		$sql = "INSERT INTO `project`
-    				(`clientproj_id`, `title`, `thumbnail_url`, `video_url`, `image_url`, `isFeatured`)
+    				(`clientproj_id`, `title`, `thumbnail_url`, `video_url`, `image_url`, `is_featured`)
     				VALUES
-    				(:clientproj_id, :title, :thumbnail_url, :video_url, :image_url, :isFeatured)";
+    				(:clientproj_id, :title, :thumbnail_url, :video_url, :image_url, :is_featured)";
     	}
     
     	/*
@@ -747,8 +769,8 @@ FORM_MARKUP;
     		*/
     		$sql = "UPDATE `project`
     		SET
-    		`clientproj_id`=:clientproj_id, `title`=:title, `thumbnail_url`=:thumbnail_url, `video_url`=:video_url, `image_url`=:image_url, `isFeatured`=:isFeatured
-    		WHERE `project_id`=$id";
+    		`clientproj_id`=:clientproj_id, `title`=:title, `thumbnail_url`=:thumbnail_url, `video_url`=:video_url, `image_url`=:image_url, `is_featured`=:is_featured
+    		WHERE `project_id`=:project_id;";
     	}
     
     	/*
@@ -757,7 +779,7 @@ FORM_MARKUP;
     	try
     	{
     		 
-    		error_log($sql);
+    		//error_log($sql);
     		 
     		$stmt = $this->db->prepare($sql);
     		$stmt->bindParam(":clientproj_id", $clientproj_id, PDO::PARAM_INT);
@@ -765,7 +787,8 @@ FORM_MARKUP;
     		$stmt->bindParam(":thumbnail_url", $thumbnail_url, PDO::PARAM_STR);
     		$stmt->bindParam(":video_url", $video_url, PDO::PARAM_STR);
     		$stmt->bindParam(":image_url", $image_url, PDO::PARAM_STR);
-    		$stmt->bindParam(":isFeatured", $isFeatured, PDO::PARAM_INT);
+    		$stmt->bindParam(":is_featured", $is_featured, PDO::PARAM_INT);
+    		$stmt->bindParam(":project_id", $id, PDO::PARAM_INT);
     		$stmt->execute();
     		$stmt->closeCursor();
     		/*
@@ -896,7 +919,10 @@ FORM_MARKUP;
     {
     
     	if ( !isset($_videos_array) ) {
-	    	require_once('/Users/todd.flom/Desktop/Sites/Consultant Site/consult_site/vimeo/vimeo.php');
+    		
+    		$root_path = $_SERVER['DOCUMENT_ROOT'];
+    		// require_once('/Users/todd.flom/Desktop/Sites/Consultant Site/consult_site/vimeo/vimeo.php');
+	    	require_once($root_path . '/vimeo/vimeo.php');
 	    	$vimeo = new phpVimeo('3623b66c5e557a850636cc6f9c3c1c57c473236e', 'de839c39d834cce43ccf606869beda547d78bfad');
 	    	$vimeo->setToken('207d88049f149371d72135d3acae4af1','ca82591c8fdcaedc5008eee783840c83b0bc1b67');    
 	    	$result = $vimeo->call('vimeo.videos.getAll', array('page' => '1',  'perpage' => '50'));

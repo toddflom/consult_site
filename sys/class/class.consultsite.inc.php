@@ -243,7 +243,7 @@ class ConsultSite extends DB_Connect
 			
 			// error_log($projects[$i]['video_url']);
 				
-			if	($projects[$i]['video_url'] != 'NULL') {
+			if	($projects[$i]['video_url'] != 'NULL' && $projects[$i]['video_url'] != '') {
 				$link .= "<iframe class='vimeo' src='http://player.vimeo.com/video/" 
 						. $projects[$i]['video_url'] 
 						. "?autoplay=0&api=1' "

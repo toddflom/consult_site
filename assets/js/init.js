@@ -526,8 +526,10 @@ jQuery(function($){
 		var clientproj_id = "&clientproj_id="+encodeURIComponent($(this).siblings().find('#clients').val());
 		var title = "&title="+encodeURIComponent($(this).siblings().find('#project_title').val());
 		
-		var isFeatured = "&isFeatured="+encodeURIComponent(($(this).siblings().find('#project_featured').is(':checked') ? 1 : 0));
-
+		var is_featured = "&is_featured="+encodeURIComponent(($(this).siblings().find('#project_featured').is(':checked') > 0 ? 1 : 0));
+		
+		console.log("checked = " + $(this).siblings().find('#project_featured').is(':checked'));
+		
 		var txt = tinymce.get('thumbnail_url').getContent();
 		var txthtml = $(txt).html();
 		var thumbnail_url = "&thumbnail_url="+encodeURIComponent($(txthtml).attr('src'));
@@ -549,7 +551,7 @@ jQuery(function($){
         // Creates an additional param for the ID if set
         id = ( id!=undefined ) ? "&project_id="+id : "";
         
-        var data = clientproj_id + title + isFeatured + thumbnail_url + video_url + image_url;
+        var data = clientproj_id + title + is_featured + thumbnail_url + video_url + image_url;
         
         $.ajax({
             type: "POST",
