@@ -77,7 +77,19 @@ $actions = array(
 		'save_project' => array(
 				'object' => 'Admin',
 				'method' => 'saveProject'
-		)		
+		),		
+		'edit_news' => array(
+				'object' => 'Admin',
+				'method' => 'saveNews'
+		),
+		'delete_news' => array(
+				'object' => 'Admin',
+				'method' => 'confirmNewsDelete'
+		),
+		'confirm_news_delete' => array(
+				'object' => 'Admin',
+				'method' => 'confirmNewsDelete'
+		),
 		
 		
 		
@@ -110,6 +122,10 @@ if ( isset($actions[$_POST['action']]) )
 	else if (isset($_POST['project_id']))
 	{
 		$id = (int)$_POST['project_id'];
+	}
+	else if (isset($_POST['news_id']))
+	{
+		$id = (int)$_POST['news_id'];
 	}
 	else { $id = NULL; }
 	

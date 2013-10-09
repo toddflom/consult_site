@@ -449,7 +449,7 @@ jQuery(function($){
 	
 	
 	function loadMinimalEditor(sel) {
-		console.log("loadMinimalEditor(");
+		//console.log("loadMinimalEditor(");
 		tinymce.init({
 		    selector: sel,
 		    inline: true,
@@ -484,6 +484,23 @@ jQuery(function($){
 			  relative_urls: false
 			});
 	}
+	
+	/*
+	tinymce.init({
+		selector: ".pdf",
+	    inline: true,
+		plugins: [
+			"autolink link image anchor",
+			"media",
+			"responsivefilemanager"
+		],
+		toolbar: "undo redo | responsivefilemanager | link unlink anchor | image media ",
+		image_advtab: true ,
+		external_filemanager_path:"/filemanager/",
+		filemanager_title:"Responsive Filemanager" ,
+		external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
+	});
+*/
 	
 	
 	
@@ -532,7 +549,7 @@ jQuery(function($){
 		
 		var is_featured = "&is_featured="+encodeURIComponent(($(this).siblings().find('#project_featured').is(':checked') > 0 ? 1 : 0));
 		
-		console.log("checked = " + $(this).siblings().find('#project_featured').is(':checked'));
+		//console.log("checked = " + $(this).siblings().find('#project_featured').is(':checked'));
 		
 		var txt = tinymce.get('thumbnail_url').getContent();
 		var txthtml = $(txt).html();
@@ -583,15 +600,17 @@ jQuery(function($){
 				
 		// console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
 
+		var node = $(this).parent().parent();
+		
 		// Can't use tinymce.getContent() here because of repeating regions
-		var logo_url = "&logo_url="+encodeURIComponent($(this).parent().parent().siblings('.logo_img').find('img').attr('src'));
-        var client = "&client="+encodeURIComponent($(this).parent().parent().siblings('.client').html());
-        var tagline = "&tagline="+encodeURIComponent($(this).parent().parent().siblings('.tagline').html());
-        var copy = "&copy="+encodeURIComponent($(this).parent().parent().siblings('.copy').html());
+		var logo_url = "&logo_url="+encodeURIComponent($(node).siblings('.logo_img').find('img').attr('src'));
+        var client = "&client="+encodeURIComponent($(node).siblings('.client').html());
+        var tagline = "&tagline="+encodeURIComponent($(node).siblings('.tagline').html());
+        var copy = "&copy="+encodeURIComponent($(node).siblings('.copy').html());
         
         // strip out the text and url from bullshit that TinyMCE adds
-        var txt = $(this).parent().parent().siblings('.cta').find('a').html(); // the text for the link
-        var url = $(this).parent().parent().siblings('.cta').find('a').attr('href'); // the url of the link
+        var txt = $(node).siblings('.cta').find('a').html(); // the text for the link
+        var url = $(node).siblings('.cta').find('a').attr('href'); // the url of the link
         
         var cta_url = "&cta_url="+encodeURIComponent('<a href="' + url + '" target="_blank" >' + txt + '</a>' ); //.find('a').attr('href'));
 
@@ -703,18 +722,8 @@ jQuery(function($){
 		$(this).addClass("active");
 		$(this).siblings().removeClass('active');
 		
-		$.ajax({
-		    type: "POST",
-		    url: processFile,
-		    data: "action=newsPage_view",
-		    success: function(data){
-					// console.log('data = ' + data);
-		    		$('#content').html(data); 
-		        },
-		    error: function(msg) {
-		            modal.append(msg);
-		        }
-		});
+		loadNewsPage();
+		
 	});
 	
 	
@@ -1068,6 +1077,210 @@ jQuery(function($){
         });
 
 	});
+	
+	
+	
+	
+	$(".client-news-options>form>.admin, .add-news-admin-options>form>input[type=submit]").live("click", function(event){
+
+		event.preventDefault();
+		// console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
+
+		var node = $(this).parent().parent();
+		
+		// Can't use tinymce.getContent() here because of repeating regions
+		var thumbnail_url = "&thumbnail_url="+encodeURIComponent($(node).siblings('.thumbnail_url').find('img').attr('src'));
+		var source = "&source="+encodeURIComponent($(node).siblings('.source').html());
+		var is_featured = "&is_featured="+encodeURIComponent(($(this).siblings('#news_featured').is(':checked') > 0 ? 1 : 0));
+		var article_title = "&article_title="+encodeURIComponent($(node).siblings('.title').html());
+		var copy = "&copy="+encodeURIComponent($(this).siblings('.copy').html());
+
+	     // strip out the text and url from bullshit that TinyMCE adds
+        var txt = $(node).siblings('.cta').find('a').html(); // the text for the link
+        var url = $(node).siblings('.cta').find('a').attr('href'); // the url of the link
+
+        var article_url = "&article_url="+encodeURIComponent('<a href="' + url + '" target="_blank" >' + txt + '</a>');
+
+        
+	     // strip out the text and url from bullshit that TinyMCE adds
+        txt = $(node).siblings('.pdf').find('a').html(); // the text for the link
+        url = $(node).siblings('.pdf').find('a').attr('href'); // the url of the link
+
+        var pdf_url = "&pdf_url="+encodeURIComponent('<a href="' + url + '" target="_blank" >' + txt + '</a>');
+        
+        // console.log(thumbnail_url.toString());
+        
+		// Sets the action for the form submission
+        var action = $(event.target).attr("name") || "edit_news";
+        
+        // Saves the value of the client_id input
+        id = $(this).siblings("input[name=news_id]").val();
+        
+        if (id == undefined || id == '') {
+        	var reload = true;
+        }
+        
+        // Creates an additional param for the ID if set
+        id = ( id!=undefined ) ? "&news_id="+id : "";
+        
+        var data = thumbnail_url + source + is_featured + article_title + copy + article_url + pdf_url;
+       
+      //  console.log(data);
+		
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action+id + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            	if (reload) {
+            		addNewProject(data);
+            	}
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+        
+        
+        
+	});
+	
+	
+	
+	
+	// Displays the client edit form as a modal window
+	$(".news-admin-options form input[name='delete_news']").live("click", function(event){
+
+			console.log("news admin form click");
+
+			// Prevents the form from submitting
+	        event.preventDefault();
+	        
+	        // Sets the action for the form submission
+	        var action = $(event.target).attr("name") || "delete_news";
+	        
+	        // Saves the value of the step_id input
+	        id = $(event.target)
+	        .siblings("input[name=news_id]")
+	            .val();
+	        
+	        // Creates an additional param for the ID if set
+	        id = ( id!=undefined ) ? "&news_id="+id : "";
+	        
+	        var offset = $(this).offset();
+	        
+	        // Loads the editing form and displays it
+	        $.ajax({
+	            type: "POST",
+	            url: processFile,
+	            data: "action="+action+id,
+	            success: function(data){
+	                // Hides the form
+	            	var form = $(data).hide();
+	            	
+	            //	console.log(data);
+
+	                // Make sure the modal window exists
+	               var  modal = fx.initModal()
+	                	.children(":not(.modal-close-btn)")
+	                    .remove()
+	                    .end();
+
+	                // Call the boxin function to create
+	                // the modal overlay and fade it in
+	                fx.boxin(null, modal, offset.top - 200);
+
+	                // Load the form into the window,
+	                // fades in the content, and adds
+	                // a class to the form
+	                form
+	                   .appendTo(modal)
+	                    .addClass("edit-form")
+	                    .fadeIn("fast");
+	            },
+	            error: function(msg){
+	                alert(msg);
+	            }
+	        });
+
+	    });
+	
+	
+	
+	
+	
+	
+	$(".news_delete.edit-form input[type=submit]").live("click", function(event){
+		
+		// console.log("delete client form click");
+
+        // Prevents the default form action from executing
+        event.preventDefault();
+        
+       // Serializes the form data for use with $.ajax()
+        var formData = $(this).parents("form").serialize();
+       
+	    // Stores the value of the submit button
+	    submitVal = $(this).val();
+	    
+	    // Determines if the client should be removed
+        remove = false;
+	
+	    // If this is the deletion form, appends an action
+	    if ( $(this).attr("name")=="confirm_client_delete" )
+	    {
+	        // Adds necessary info to the query string
+	        formData += "&action=confirm_client_delete"
+	            + "&confirm_client_delete="+submitVal;
+
+		     // If the client is really being deleted, sets
+		     // a flag to remove it from the markup
+            if ( submitVal=="Confirm Delete" )
+            {
+               remove = true;
+            }
+	    }
+	    
+	    
+        // Sends the data to the processing file
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: formData,
+           success: function(data) {                
+              // console.log("data = " + data);
+                
+                // Fades out the modal window
+                fx.boxout();
+                
+                loadNewsPage();
+             },
+            error: function(msg) {
+                alert(msg);
+            }
+        });
+
+	});
+
+	function loadNewsPage() {
+		$.ajax({
+		    type: "POST",
+		    url: processFile,
+		    data: "action=newsPage_view",
+		    success: function(data){
+					// console.log('data = ' + data);
+		    		$('#content').html(data); 
+		        },
+		    error: function(msg) {
+		            modal.append(msg);
+		        }
+		});
+	}
+	
+	
+	
+	
 
 	
 });

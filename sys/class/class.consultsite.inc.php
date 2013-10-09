@@ -298,18 +298,19 @@ class ConsultSite extends DB_Connect
 			
 		for ($i = 0; $i < $tot_news; $i++) {
 	
-			$link = "<img class='thumbnail' src='" . $news[$i]['thumbnail_url'] . "' />"
+			$link = "<div class='thumbnail_url'><img class='thumbnail' src='" . $news[$i]['thumbnail_url'] . "' /></div>"
 					. "<div class='source'>" .  $news[$i]['source'] . "</div>"
 					. "<div class='title'>" .  $news[$i]['article_title'] . "</div>"
 					. "<div class='cta'><a href='" .  $news[$i]['article_url'] . "'>Learn More</a></div>";
-			
 			
 			if ($news[$i]['pdf_url'] != NULL) {
 				$link .= "<div class='pdf'><a href='" .  $news[$i]['pdf_url'] . "' target='_blank'>Download PDF</a></div>";
 	
 			}
 			
-			$link .= $this->_adminNewsOptions($news[$i]['id']);
+			$is_featured = $news[$i]['is_featured'];
+			$checked = $is_featured == '1' ? 'checked' : '';
+			$link .= $this->_adminNewsOptions($news[$i]['id'], $checked, $news[$i]['copy']);
 			
 			//error_log("i = " . $i . " mod 3 = " . $i % 3);
 			
@@ -415,7 +416,9 @@ class ConsultSite extends DB_Connect
 	
 		$sql = "SELECT `id`,
 				`source`,
+				`is_featured`,
 				`article_title`,
+				`copy`,
 				`article_url`,
 				`pdf_url`,
 				`thumbnail_url`
@@ -718,12 +721,12 @@ ADMIN_OPTIONS;
 	private function _adminAddProjectOptions($id)
 	{
 		if ( isset($_SESSION['user']) )
-		{
+		{			
 			return <<<ADMIN_OPTIONS
 	
     <div class="add-project-admin-options">
     <form action="assets/inc/process.inc.php" method="post">
-		<input type="submit" name="edit_project" value="Add a New Project" />
+		<input type="submit" name="edit_project" value="&#43; Add a New Project" />
     	<input type="hidden" name="client_id" value="$id" />
 		<input type="hidden" name="token" value="$_SESSION[token]" />
     </form>
@@ -751,9 +754,11 @@ ADMIN_OPTIONS;
 		{
 			return <<<ADMIN_OPTIONS
 	
+	<div class='horizontalRule'></div>
+			
     <div class="add-client-admin-options">
     <form action="assets/inc/process.inc.php" method="post">
-		<input type="submit" name="edit_client" value="Add a New Client" />
+		<input type="submit" name="edit_client" value="&#43; Add a New Client" />
     	<input type="hidden" name="client_id" value="" />
 		<input type="hidden" name="token" value="$_SESSION[token]" />
     </form>
@@ -775,14 +780,85 @@ ADMIN_OPTIONS;
 	 * @param int $id the news ID to generate options for
 	 * @return string the markup for the edit/delete options
 	 */
-	private function _adminNewsOptions($id)
+	private function _adminNewsOptions($id, $checked, $copy)
 	{
 		if ( isset($_SESSION['user']) )
 		{
+			$highlightBox = '<input type="checkbox" name="news_featured" id="news_featured" value="1" ' . $checked . ' />';
+			
 			return <<<ADMIN_OPTIONS
 	
-    <div class="client-news-options">
+    	<script type="text/javascript">
+	    	$(function() {
+				
+				tinymce.init({
+					selector: ".thumbnail_url",
+					inline: true,
+					plugins: [
+					"image",
+					"responsivefilemanager"
+					],
+					toolbar: "image",
+					menubar: false,
+					external_filemanager_path:"/filemanager/",
+					filemanager_title:"Responsive Filemanager" ,
+					external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
+				});
+
+				tinymce.init({
+				    selector: ".source",
+				    inline: true,
+				    plugins: "charmap",
+				    toolbar: "undo redo | charmap",
+				    menubar: false
+				});
+				tinymce.init({
+				    selector: [
+				    	".title",
+				    	".copy"
+				    ],
+				    inline: true,
+				    plugins: [
+				        "autolink lists link charmap anchor",
+				    ],
+				    menubar: false,
+				    toolbar: "undo redo | bold italic | charmap | link"
+				});
+				
+				tinymce.init({
+					selector: ".cta",
+					inline: true,
+					plugins: "autolink link",
+					toolbar: "link",
+					menubar: false
+				});
+			
+			
+				tinymce.init({
+					selector: ".pdf",
+				    inline: true,
+					plugins: [
+						"autolink link",
+						"responsivefilemanager"
+					],
+				    menubar: false,
+					toolbar: "link unlink anchor",
+					image_advtab: true ,
+					external_filemanager_path:"/filemanager/",
+					filemanager_title:"CL Filemanager" ,
+					external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
+				});
+			
+			});
+		</script>
+			
+			
+    <div class="news-admin-options">
     <form action="assets/inc/process.inc.php" method="post">
+    	<div class="copy">$copy</div><br/>
+    	<label for="news_featured">Article Featured on Main Page:</label>
+            $highlightBox
+            <br/>
 		<a class="admin" href="#">Save Edits</a>
 		<input type="hidden" name="news_id" value="$id" />
 		<input type="hidden" name="token" value="$_SESSION[token]" />
