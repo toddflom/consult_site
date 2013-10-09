@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Oct 07, 2013 at 10:32 AM
+-- Generation Time: Oct 09, 2013 at 05:03 PM
 -- Server version: 5.5.9
 -- PHP Version: 5.3.6
 
@@ -62,7 +62,7 @@ CREATE TABLE `client_project` (
   `copy` text NOT NULL,
   `cta_url` varchar(255) NOT NULL,
   PRIMARY KEY (`clientproj_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;
 
 --
 -- Dumping data for table `client_project`
@@ -115,10 +115,10 @@ CREATE TABLE `news_item` (
 -- Dumping data for table `news_item`
 --
 
-INSERT INTO `news_item` VALUES(1, 'Wall Street Journal', 1, 'Subaru on track for 6 straight years of record-breaking sales', 'Surging U.S. demand for some Subaru vehicles could lead to dealer shortages if trends continue, the chief executive of the Japanese auto maker said on Thursday.', 'http://online.wsj.com/article/SB10001424127887324682204578514992711813694.html', 'pdf/fake_document.pdf', 'imgupload/Wall-Street-Journal-article_thumb.jpg');
-INSERT INTO `news_item` VALUES(2, 'New York Times', 1, 'Awesome Jack Link''s media integration with Seth Meyer''s The Awesomes', 'MOST of the news about Hulu recently has focused on whether the popular video streaming site would be sold. Last week, the owners of Hulu — 21st Century Fox, the Walt Disney Company and NBCUniversal — provided a reprieve.', 'http://www.nytimes.com/2013/07/19/business/media/instead-of-a-sale-hulu-concentrates-on-the-awesomes.html', '', 'imgupload/New-York-Times-article_thumb.jpg');
-INSERT INTO `news_item` VALUES(3, 'AdWeek', 1, 'Steak ''n Shake''s new spot is named Ad Of The Day', 'Carmichael Lynch’s new campaign for Steak ’n Shake is a triumph of hair, sound and costumes.', 'http://www.adweek.com/news/advertising-branding/ad-day-great-hair-and-sound-drive-steak-n-shake-ads-151666', 'pdf/fake_document.pdf', 'imgupload/Ad-Week-article-thumb.jpg');
-INSERT INTO `news_item` VALUES(4, 'AdWeek', 0, 'Carmichael Lynch Gets Tempur-Pedic Media Follows win of creative work', 'Tempur-Pedic expanded its relationship with Carmichael Lynch, giving the Minneapolis agency responsibility for media planning, buying and analytics.', 'http://www.adweek.com/news/advertising-branding/carmichael-lynch-gets-tempur-pedic-media-149469', '', 'imgupload/Ad-Week-Tempur-Pedic-article_thumb.jpg');
+INSERT INTO `news_item` VALUES(1, 'Wall Street Journal', 1, 'Subaru on track for 6 straight years of record-breaking sales', 'Surging U.S. demand for some Subaru vehicles could lead to dealer shortages if trends continue, the chief executive of the Japanese auto maker said on Thursday.', 'http://online.wsj.com/article/SB10001424127887324682204578514992711813694.html', 'source/pdfs/fake_document.pdf', 'source/news images/Wall-Street-Journal-article_thumb.jpg');
+INSERT INTO `news_item` VALUES(2, '<p>New York Times</p>', 1, '<p>Awesome Jack Linkâ€™s media integration with Seth Meyerâ€™s The Awesomes</p>', '<p>MOST of the news about Hulu recently has focused on whether the popular video streaming site would be sold. Last week, the owners of Hulu&nbsp;â€” 21st Century Fox, the Walt Disney Company and NBCUniversal&nbsp;â€” provided a reprieve.</p>', '<a href=\\"<a href=\\\\\\"http://www.nytimes.com/2013/07/19/business/media/instead-of-a-sale-hulu-concentrates-on-the-awesomes.html\\\\\\" target=\\\\\\"_blank\\\\\\" >Learn More</a>\\" target=\\"_blank\\" >Learn More</a>', '<a href=\\"<a href=\\\\\\"undefined\\\\\\" target=\\\\\\"_blank\\\\\\" >null</a>\\" target=\\"_blank\\" >Download PDF</a>', 'source/news images/New-York-Times-article_thumb.jpg');
+INSERT INTO `news_item` VALUES(3, '<p>AdWeek</p>', 1, '<p>Steak â€™n Shakeâ€™s new spot is named Ad Of The Day</p>', '<p>Carmichael Lynchâ€™s new campaign for Steak â€™n Shake is a triumph of hair, sound and costumes.</p>', '<a href=\\"<a href=\\\\\\"http://www.adweek.com/news/advertising-branding/ad-day-great-hair-and-sound-drive-steak-n-shake-ads-151666\\\\\\" target=\\\\\\"_blank\\\\\\" >Learn More</a>\\" target=\\"_blank\\" >Learn More</a>', '<a href=\\"<a href=\\\\\\"source/pdfs/fake_document.pdf\\\\\\" target=\\\\\\"_blank\\\\\\" >Download PDF</a>\\" target=\\"_blank\\" >Download PDF</a>', 'source/news images/Ad-Week-article-thumb.jpg');
+INSERT INTO `news_item` VALUES(4, '<p>AdWeek</p>', 0, '<p>Carmichael Lynch Gets Tempur-Pedic Media Follows win of creative work</p>', '<p>Tempur-Pedic expanded its relationship with Carmichael Lynch, giving the Minneapolis agency responsibility for media planning, buying and analytics.</p>', '<a href=\\"<a href=\\\\\\"http://www.adweek.com/news/advertising-branding/carmichael-lynch-gets-tempur-pedic-media-149469\\\\\\" target=\\\\\\"_blank\\\\\\" >Learn More</a>\\" target=\\"_blank\\" >Learn More</a>', '<a href=\\"<a href=\\\\\\"undefined\\\\\\" target=\\\\\\"_blank\\\\\\" >null</a>\\" target=\\"_blank\\" >Download PDF</a>', 'source/news images/Ad-Week-Tempur-Pedic-article_thumb.jpg');
 
 -- --------------------------------------------------------
 
@@ -159,7 +159,7 @@ CREATE TABLE `project` (
   `is_featured` tinyint(1) NOT NULL DEFAULT '0',
   `sortorder` int(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`project_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=19 ;
 
 --
 -- Dumping data for table `project`
@@ -167,7 +167,7 @@ CREATE TABLE `project` (
 
 INSERT INTO `project` VALUES(1, 3, 'Movie Marathons', 'imgupload/American-Standard-Movie-Marathons_thumb.jpg', '73243530', 'NULL', 1, 0);
 INSERT INTO `project` VALUES(2, 4, 'Barbie', 'imgupload/Barbie_thumb.jpg', 'NULL', 'imgupload/Barbie Ad.jpg', 1, 0);
-INSERT INTO `project` VALUES(3, 2, 'Nature Painting', 'imgupload/Subaru-Nature-Painting_thumb.jpg', '66733042', NULL, 1, 0);
+INSERT INTO `project` VALUES(3, 2, 'Nature Painting', '/imgupload/Subaru-Nature-Painting_thumb.jpg', '66733042', '', 1, 0);
 INSERT INTO `project` VALUES(4, 5, 'All Dolled Up', 'imgupload/Jack-Links-All-Dolled-Up_thumb.jpg', '66171596', NULL, 1, 0);
 INSERT INTO `project` VALUES(5, 1, 'Bear', '', '65739725', NULL, 0, 0);
 INSERT INTO `project` VALUES(6, 1, 'Cloud', '', '72111862', NULL, 0, 0);
