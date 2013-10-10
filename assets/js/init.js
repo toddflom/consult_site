@@ -6,6 +6,8 @@ jQuery(function($){
 	// File to which AJAX requests should be sent
 	var processFile = "assets/inc/ajax.inc.php";
 	
+	var timeout;
+	
 	// Functions to manipulate the modal window
 	var fx = {	
 						
@@ -369,16 +371,7 @@ jQuery(function($){
 		event.preventDefault();
 		var formData = $(this).parents("form").serialize();
 		submitVal = $(this).val();
-		
-		/* 
-		var action = $("#form1").attr('action');
-		var form_data = {
-			username: $("#username").val(),
-			password: $("#password").val(),
-			is_ajax: 1
-		};
-		*/
-		
+				
 		$.ajax({
 			type: "POST",
 			url: processFile,
@@ -404,19 +397,35 @@ jQuery(function($){
 	
 	$("#header_wrapper>.clLogo").click(function(event) {
 		event.preventDefault();
-
 		loadLandingPage();
-		
 		$(this).siblings('#header_nav').children().removeClass('active');
 	});
 	
 
-	
+	// had to keep here because of the need to call loadProjectsPage()
 	function loadLandingJS() {
 		$("#featured_projects>.featured_bar>div.cta").click(function(event) {
 			event.preventDefault();
-			$('#header_nav').children().removeClass('active');
+			var nav_node = $('#header_nav').children('.projects_view');
+			$(nav_node).addClass("active");
+			$(nav_node).siblings().removeClass('active');
 			loadProjectsPage();
+		});
+
+		$("#featured_articles>.articles_bar>div.cta").click(function(event) {
+			event.preventDefault();
+			var nav_node = $('#header_nav').children('.news_view');
+			$(nav_node).addClass("active");
+			$(nav_node).siblings().removeClass('active');
+			loadNewsPage();
+		});
+
+		$("#featured_news>.news_bar>div.cta").click(function(event) {
+			event.preventDefault();
+			var nav_node = $('#header_nav').children('.thought_view');
+			$(nav_node).addClass("active");
+			$(nav_node).siblings().removeClass('active');
+			loadThoughtPage();
 		});
 	}
 	
@@ -433,120 +442,12 @@ jQuery(function($){
 					//console.log('data = ' + data);
             		$( "#modal_background").remove();
             		$('#content').html(data); 
-            		shouldLoadEditor("div#greeting", 'full');
             		loadLandingJS();
                 },
             error: function(msg) {
                     modal.append(msg);
                 }
         });
-	}
-	
-	
-	
-	function loadFullEditor(sel) {
-		tinymce.init({
-		    selector: sel,
-		    inline: true,
-		    plugins: [
-		        "autolink lists link charmap anchor",
-		        "searchreplace visualblocks code",
-		        "insertdatetime paste"
-		    ],
-		    toolbar: "undo redo | bold italic | charmap | link"
-		});
-	}
-	
-	
-	
-	function loadMinimalEditor(sel) {
-		//console.log("loadMinimalEditor(");
-		tinymce.init({
-		    selector: sel,
-		    inline: true,
-		    plugins: "charmap",
-		    toolbar: "undo redo | charmap",
-		    menubar: false
-		});
-	}
-
-	
-	
-	function loadLinkEditor(sel) {
-		tinymce.init({
-			  selector: sel, 
-			  inline: true,
-			  plugins: "link",
-          toolbar: "link",
-			  menubar: false
-			});
-	}
-	
-	
-	function loadImageEditor(sel) {
-		tinymce.init({
-			  selector: sel, 
-			   inline: true,
-			  plugins: [
-			    "jbimages"
-			  ],
-			  toolbar: "jbimages",
-			  menubar: false,
-			  relative_urls: false
-			});
-	}
-	
-	/*
-	tinymce.init({
-		selector: ".pdf",
-	    inline: true,
-		plugins: [
-			"autolink link image anchor",
-			"media",
-			"responsivefilemanager"
-		],
-		toolbar: "undo redo | responsivefilemanager | link unlink anchor | image media ",
-		image_advtab: true ,
-		external_filemanager_path:"/filemanager/",
-		filemanager_title:"Responsive Filemanager" ,
-		external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
-	});
-*/
-	
-	
-	
-	function shouldLoadEditor(sel, type) {
-		
-		console.log("shouldLoadEditor(");
-		
-		$.ajax( {
-		      type:'GET',
-		      url:'assets/inc/session.inc.php',
-		      success: function(data){
-		    	  if( data == "Expired" ) {
-				       return false;
-				   } else if (data == "Active" ) {
-					   
-					   switch (type) {
-					   case 'full':
-						   loadFullEditor(sel);
-					     break;
-					   case 'minimal':
-						   loadMinimalEditor(sel);
-					     break;
-					   case 'link':
-						  loadLinkEditor(sel);
-					     break;
-					   case 'image':
-						  loadImageEditor(sel);
-					     break;
-					   }
-					   
-					   return true;
-				   }
-		      }
-		   }
-		);
 	}
 	
 	
@@ -609,8 +510,12 @@ jQuery(function($){
 
 		event.preventDefault();
 				
-		// console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
+		var butt_txt = $(this).text();
+		var element = $(this)
+		
+		$(this).text('SAVED');
 
+		
 		var node = $(this).parent().parent();
 		
 		// Can't use tinymce.getContent() here because of repeating regions
@@ -655,6 +560,9 @@ jQuery(function($){
             	if (reload) {
             		addNewProject(data);
             	}
+            	timeout = setTimeout(function() {
+                    $(element).html(butt_txt);
+                }, 1000);
             },
             error: function(msg){
                 alert(msg);
@@ -696,19 +604,6 @@ jQuery(function($){
 	
 	
 	
-	function initProjectsPage() {
-		
-		shouldLoadEditor("div.logo_img", 'image');
-		shouldLoadEditor(".client_info>div.cta", 'link');
-		shouldLoadEditor("div.client", 'minimal');
-		shouldLoadEditor("div.tagline", 'minimal');
-		shouldLoadEditor("div.copy", 'full');
-
-	}
-
-	
-	
-	
 	
 	
 	$("#header_nav>.nav_item.projects_view").live("click", function(event){
@@ -722,10 +617,6 @@ jQuery(function($){
 	});
 	
 	
-	
-	
-	
-	
 	$("#header_nav>.nav_item.news_view").live("click", function(event){
 		 
 		event.preventDefault();
@@ -734,11 +625,9 @@ jQuery(function($){
 		$(this).siblings().removeClass('active');
 		
 		loadNewsPage();
-		
 	});
 	
 	
-
 	
 	$("#header_nav>.nav_item.thought_view").live("click", function(event){
 		 
@@ -747,18 +636,7 @@ jQuery(function($){
 		$(this).addClass("active");
 		$(this).siblings().removeClass('active');
 		
-		$.ajax({
-		    type: "POST",
-		    url: processFile,
-		    data: "action=thoughtPage_view",
-		    success: function(data){
-					// console.log('data = ' + data);
-		    		$('#content').html(data); 
-		        },
-		    error: function(msg) {
-		            modal.append(msg);
-		        }
-		});
+		loadThoughtPage();
 	});
 	
 	
@@ -887,7 +765,6 @@ jQuery(function($){
 		    success: function(data){
 					// console.log('data = ' + data);
 		    		$('#content').html(data); 
-		    		initProjectsPage();
 		        },
 		    error: function(msg) {
 		            modal.append(msg);
@@ -979,7 +856,7 @@ jQuery(function($){
 	// Displays the project edit form as a modal window
 	$(".project-admin-options form input[name=delete_project]").live("click", function(event){
 
-			console.log("project admin form click");
+			// console.log("project admin form click");
 
 			// Prevents the form from submitting
 	        event.preventDefault();
@@ -1095,8 +972,12 @@ jQuery(function($){
 	$(".news-admin-options>form>.admin, .add-news-admin-options>form>input[type=submit]").live("click", function(event){
 
 		event.preventDefault();
-		// console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
-
+		
+		var butt_txt = $(this).text();
+		var element = $(this)
+		
+		$(this).text('SAVED');
+		
 		var node = $(this).parent().parent();
 		
 		// Can't use tinymce.getContent() here because of repeating regions
@@ -1147,6 +1028,9 @@ jQuery(function($){
             	if (reload) {
             		addNewNews(data);
             	}
+        		timeout = setTimeout(function() {
+                    $(element).html(butt_txt);
+                }, 1000);
             },
             error: function(msg){
                 alert(msg);
@@ -1309,6 +1193,451 @@ jQuery(function($){
             	// fx.boxout();
                 
                 loadNewsPage();
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+
+	}
+	
+	
+	
+	
+	
+	$(".article-admin-options>form>.admin, .add-thought-admin-options>form>input[type=submit]").live("click", function(event){
+
+		event.preventDefault();
+		
+		var butt_txt = $(this).text();
+		var element = $(this)
+		
+		$(this).text('SAVED');
+
+		var node = $(this).parent().parent().siblings('.info');
+		
+		// Can't use tinymce.getContent() here because of repeating regions
+		var source = "&source="+encodeURIComponent($(node).children('.source').html());
+        var title = "&title="+encodeURIComponent($(node).children('.title').find('a').html());
+
+	     // strip out the text and url from bullshit that TinyMCE adds
+        var url = $(node).children('.title').find('a').attr('href'); // the url of the link
+        var article_url = "&article_url="+encodeURIComponent(url);
+
+		var person_id = "&person_id="+encodeURIComponent($(this).siblings('#persons').val());
+		var is_featured = "&is_featured="+encodeURIComponent(($(this).siblings('#article_featured').is(':checked') > 0 ? 1 : 0));
+        
+		// Sets the action for the form submission
+        var action = $(event.target).attr("name") || "edit_thought";
+        
+        // Saves the value of the client_id input
+        id = $(this).siblings("input[name=article_id]").val();
+        
+        if (id == undefined || id == '') {
+        	var reload = true;
+        }
+        
+        // Creates an additional param for the ID if set
+        id = ( id!=undefined ) ? "&article_id="+id : "";
+        
+        var data = source + title + article_url + person_id + is_featured;
+       
+      //  console.log(data);
+		
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action+id + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            	if (reload) {
+            		addNewThought(data);
+            	}
+        		timeout = setTimeout(function() {
+                    $(element).html(butt_txt);
+                }, 1000);
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+        
+        
+        
+	});
+	
+	
+	
+	
+	// Displays the client edit form as a modal window
+	$(".article-admin-options form input[name='delete_thought']").live("click", function(event){
+
+			console.log("thought admin form click");
+
+			// Prevents the form from submitting
+	        event.preventDefault();
+	        
+	        // Sets the action for the form submission
+	        var action = $(event.target).attr("name") || "delete_thought";
+	        
+	        // Saves the value of the step_id input
+	        id = $(event.target)
+	        .siblings("input[name=article_id]")
+	            .val();
+	        
+	        // Creates an additional param for the ID if set
+	        id = ( id!=undefined ) ? "&article_id="+id : "";
+	        
+	        var offset = $(this).offset();
+	        
+	        // Loads the editing form and displays it
+	        $.ajax({
+	            type: "POST",
+	            url: processFile,
+	            data: "action="+action+id,
+	            success: function(data){
+	                // Hides the form
+	            	var form = $(data).hide();
+	            	
+	            //	console.log(data);
+
+	                // Make sure the modal window exists
+	               var  modal = fx.initModal()
+	                	.children(":not(.modal-close-btn)")
+	                    .remove()
+	                    .end();
+
+	                // Call the boxin function to create
+	                // the modal overlay and fade it in
+	                fx.boxin(null, modal, offset.top - 200);
+
+	                // Load the form into the window,
+	                // fades in the content, and adds
+	                // a class to the form
+	                form
+	                   .appendTo(modal)
+	                    .addClass("edit-form")
+	                    .fadeIn("fast");
+	            },
+	            error: function(msg){
+	                alert(msg);
+	            }
+	        });
+
+	    });
+	
+	
+	
+	
+	
+	
+	$(".thought_delete.edit-form input[type=submit]").live("click", function(event){
+		
+		// console.log("delete client form click");
+
+        // Prevents the default form action from executing
+        event.preventDefault();
+        
+       // Serializes the form data for use with $.ajax()
+        var formData = $(this).parents("form").serialize();
+       
+	    // Stores the value of the submit button
+	    submitVal = $(this).val();
+	    
+	    // Determines if the client should be removed
+        remove = false;
+	
+	    // If this is the deletion form, appends an action
+	    if ( $(this).attr("name")=="confirm_thought_delete" )
+	    {
+	        // Adds necessary info to the query string
+	        formData += "&action=confirm_thought_delete"
+	            + "&confirm_thought_delete="+submitVal;
+
+		     // If the client is really being deleted, sets
+		     // a flag to remove it from the markup
+            if ( submitVal=="Confirm Delete" )
+            {
+               remove = true;
+            }
+	    }
+	    
+	    
+        // Sends the data to the processing file
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: formData,
+           success: function(data) {                
+              // console.log("data = " + data);
+                
+                // Fades out the modal window
+                fx.boxout();
+                
+                loadThoughtPage();
+             },
+            error: function(msg) {
+                alert(msg);
+            }
+        });
+
+	});
+
+	
+	
+	
+	function loadThoughtPage() {
+		$.ajax({
+		    type: "POST",
+		    url: processFile,
+		    data: "action=thoughtPage_view",
+		    success: function(data){
+					// console.log('thought data = ' + data);
+		    		$('#content').html(data); 
+		        },
+		    error: function(msg) {
+		            modal.append(msg);
+		        }
+		});
+	}
+	
+	
+	
+	function addNewThought(id){
+		
+		var article_id = id;
+		// Sets the action for the form submission
+        var action = "save_thought";
+       
+        
+        var data = "&article_id="+ article_id;
+        
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            	
+            	// fx.boxout();
+                
+            	loadThoughtPage();
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	$(".person-admin-options>form>.admin, .add-person-admin-options>form>input[type=submit]").live("click", function(event){
+
+		event.preventDefault();
+		
+		var butt_txt = $(this).text();
+		var element = $(this)
+		
+		$(this).text('SAVED');
+
+		var node = $(this).parent().parent().siblings('.info');
+		
+		// Can't use tinymce.getContent() here because of repeating regions
+		var source = "&source="+encodeURIComponent($(node).children('.source').html());
+        var title = "&title="+encodeURIComponent($(node).children('.title').find('a').html());
+
+	     // strip out the text and url from bullshit that TinyMCE adds
+        var url = $(node).children('.title').find('a').attr('href'); // the url of the link
+        var article_url = "&article_url="+encodeURIComponent(url);
+
+		var person_id = "&person_id="+encodeURIComponent($(this).siblings('#persons').val());
+		var is_featured = "&is_featured="+encodeURIComponent(($(this).siblings('#article_featured').is(':checked') > 0 ? 1 : 0));
+        
+		// Sets the action for the form submission
+        var action = $(event.target).attr("name") || "edit_person";
+        
+        // Saves the value of the client_id input
+        id = $(this).siblings("input[name=person_id]").val();
+        
+        if (id == undefined || id == '') {
+        	var reload = true;
+        }
+        
+        // Creates an additional param for the ID if set
+        id = ( id!=undefined ) ? "&person_id="+id : "";
+        
+        var data = source + title + article_url + person_id + is_featured;
+       
+      //  console.log(data);
+		
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action+id + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            	if (reload) {
+            		addNewThought(data);
+            	}
+        		timeout = setTimeout(function() {
+                    $(element).html(butt_txt);
+                }, 1000);
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+        
+        
+        
+	});
+	
+	
+	
+	
+	// Displays the client edit form as a modal window
+	$(".person-admin-options form input[name='delete_person']").live("click", function(event){
+
+			console.log("person admin form click");
+
+			// Prevents the form from submitting
+	        event.preventDefault();
+	        
+	        // Sets the action for the form submission
+	        var action = $(event.target).attr("name") || "delete_person";
+	        
+	        // Saves the value of the step_id input
+	        id = $(event.target)
+	        .siblings("input[name=person_id]")
+	            .val();
+	        
+	        // Creates an additional param for the ID if set
+	        id = ( id!=undefined ) ? "&person_id="+id : "";
+	        
+	        var offset = $(this).offset();
+	        
+	        // Loads the editing form and displays it
+	        $.ajax({
+	            type: "POST",
+	            url: processFile,
+	            data: "action="+action+id,
+	            success: function(data){
+	                // Hides the form
+	            	var form = $(data).hide();
+	            	
+	            //	console.log(data);
+
+	                // Make sure the modal window exists
+	               var  modal = fx.initModal()
+	                	.children(":not(.modal-close-btn)")
+	                    .remove()
+	                    .end();
+
+	                // Call the boxin function to create
+	                // the modal overlay and fade it in
+	                fx.boxin(null, modal, offset.top - 200);
+
+	                // Load the form into the window,
+	                // fades in the content, and adds
+	                // a class to the form
+	                form
+	                   .appendTo(modal)
+	                    .addClass("edit-form")
+	                    .fadeIn("fast");
+	            },
+	            error: function(msg){
+	                alert(msg);
+	            }
+	        });
+
+	    });
+	
+	
+	
+	
+	
+	
+	$(".person_delete.edit-form input[type=submit]").live("click", function(event){
+		
+		// console.log("delete client form click");
+
+        // Prevents the default form action from executing
+        event.preventDefault();
+        
+       // Serializes the form data for use with $.ajax()
+        var formData = $(this).parents("form").serialize();
+       
+	    // Stores the value of the submit button
+	    submitVal = $(this).val();
+	    
+	    // Determines if the client should be removed
+        remove = false;
+	
+	    // If this is the deletion form, appends an action
+	    if ( $(this).attr("name")=="confirm_person_delete" )
+	    {
+	        // Adds necessary info to the query string
+	        formData += "&action=confirm_person_delete"
+	            + "&confirm_person_delete="+submitVal;
+
+		     // If the client is really being deleted, sets
+		     // a flag to remove it from the markup
+            if ( submitVal=="Confirm Delete" )
+            {
+               remove = true;
+            }
+	    }
+	    
+	    
+        // Sends the data to the processing file
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: formData,
+           success: function(data) {                
+              // console.log("data = " + data);
+                
+                // Fades out the modal window
+                fx.boxout();
+                
+                loadThoughtPage();
+             },
+            error: function(msg) {
+                alert(msg);
+            }
+        });
+
+	});
+
+	
+	
+	
+	function addNewPerson(id){
+		
+		var person_id = id;
+		// Sets the action for the form submission
+        var action = "save_person";
+       
+        
+        var data = "&person_id="+ person_id;
+        
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            	
+            	// fx.boxout();
+                
+            	loadThoughtPage();
             },
             error: function(msg){
                 alert(msg);

@@ -171,34 +171,37 @@ input[type="submit"] {
     overflow: auto;
 }
 
-.project-admin-options form{
+.project-admin-options form, .article-admin-options form a {
     float:left;
     margin-right: 20px;
 }
 
-form.project_edit>fieldset>div {
+form.project_edit>fieldset>div,
+form.project_edit input[type="submit"],
+div.add-client-admin-options,
+.news-admin-options .admin,
+.article-admin-options form a,
+.article-admin-options #cancel_thought_delete {
 	margin-top: 15px;
 }
 
-form.project_edit input[type="submit"] {
-	margin-top:15px;
-}
-
-div.add-client-admin-options {
-	margin-top:15px;
-}
-
-
-.news-admin-options {
+.news-admin-options, .article-admin-options {
 	font-family: Arial,Helvetica,sans-serif;
 	color: #ACACAC;
 	font-size: 90%;
 }
 
-.news-admin-options .admin {
-	margin-top:15px;
+#people .person {
+	width: 220px;
 }
 
+#people .person.col_left {
+	margin: 10px;
+}
+
+.person-admin-options .admin {
+	margin-top: 15px;
+}
 
 
 

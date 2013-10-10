@@ -79,7 +79,7 @@ class ConsultSite extends DB_Connect
 
 	
 	public function displayLandingPage() {
-		
+	
 		$html = $this->_adminGeneralOptions();
 				
 		$html .= "<div class='horizontalRule'></div>";
@@ -127,7 +127,7 @@ class ConsultSite extends DB_Connect
 		
 		$html .= "<div id='featured_articles'>";
 		
-		$html .= "<div class='articles_bar'><div class='title'>Featured Articles</div><div class='cta'><a href='#'>View All</a></div></div>";
+		$html .= "<div class='articles_bar'><div class='title'>Featured Articles</div><div class='cta'>View All</div></div>";
 		
 		$articles = $this->_loadFeaturedArticles();
 				
@@ -155,7 +155,7 @@ class ConsultSite extends DB_Connect
 
 		$html .= "<div id='featured_news'>";
 		
-		$html .= "<div class='news_bar'><div class='title'>In The News</div><div class='cta'><a href='#'>View All</a></div></div>";
+		$html .= "<div class='news_bar'><div class='title'>In The News</div><div class='cta'>View All</div></div>";
 		
 		$news = $this->_loadFeaturedNews();
 		
@@ -177,6 +177,7 @@ class ConsultSite extends DB_Connect
 		
 		$html .= "</div><!-- end of featured_news -->";
 		
+		$html .= $this->_adminGeneralOptionsJS();
 		
 		return $html;
 	}
@@ -277,6 +278,8 @@ class ConsultSite extends DB_Connect
 		
 		$html .= $this->_adminAddClientOptions();
 		
+		$html .= $this->_adminClientOptionsJS();
+		
 		
 		return $html;
 	}
@@ -284,6 +287,7 @@ class ConsultSite extends DB_Connect
 	
 	
 	public function displayNewsPage() {
+		
 	
 		$html = "<div class='header_bar'><div class='title'>In the News</div></div>";
 	
@@ -327,6 +331,9 @@ class ConsultSite extends DB_Connect
 		$html .= $this->_adminAddNewsOptions();
 		
 		$html .= "</div><!-- end of news -->";
+		
+		$html .= $this->_adminNewsOptionsJS();
+		
 			
 		return $html;
 	}
@@ -344,9 +351,11 @@ class ConsultSite extends DB_Connect
 		$thoughts = $this->_loadThoughts();
 	
 		$tot_thoughts = count($thoughts);
-	
-		// $ds = "<div class='client_project'>";
+
 		$de = "</div>";
+		
+		
+		error_log("total thoughts = " . $tot_thoughts);
 			
 		for ($i = 0; $i < $tot_thoughts; $i++) {
 	
@@ -359,7 +368,11 @@ class ConsultSite extends DB_Connect
 					. "</div>";
 											
 								
-			error_log("i = " . $i . " mod 3 = " . $i % 3);
+			// error_log("i = " . $i . " mod 3 = " . $i % 3);
+			
+			$is_featured = $thoughts[$i]['is_featured'];
+			$checked = $is_featured == '1' ? 'checked' : '';
+			$link .= $this->_adminThoughtOptions($thoughts[$i]['id'], $thoughts[$i]['person_id'], $checked);
 				
 			if($i % 2 == 1) {
 				$html .=  "<div class='thought col_right'>" . $link . "</div><div id='clearance' style='clear:both;'></div>";
@@ -371,10 +384,100 @@ class ConsultSite extends DB_Connect
 	
 		}
 	
+		$html .= $this->_adminAddThoughtOptions();
+		
 		$html .= "</div><!-- end of thought_leadership -->";
+
+		$html .= $this->_displayPersonsData();
+		
+		$html .= $this->_adminThoughtOptionsJS();
+		
 	
 		return $html;
 	}
+	
+	
+	
+
+	private function _displayPersonsData() {
+	
+		
+		if ( isset($_SESSION['user']) )
+		{
+
+			$html = "<div id='people'>";
+			
+			$html .= "<p>&nbsp;</p><div class='horizontalRule'></div>";
+				
+			$html .= "<div class='header_bar'><div class='title'>People</div></div>";
+			
+			$people = $this->_loadPeople();
+			
+			$tot_people = count($people);
+			
+			$de = "</div>";
+			//error_log("total people = " . $tot_people);
+				
+			for ($i = 0; $i < $tot_people; $i++) {
+			
+				$link = "<div class='image'><img class='photo' src='" . $people[$i]['photo_url'] . "' /></div>"
+						. "<div class='info'>"
+						. "<div class='name'>" .  $people[$i]['name'] . "</div>"
+						. "</div>";
+			
+				// error_log("i = " . $i . " mod 3 = " . $i % 3);
+			
+				$link .= $this->_adminPersonOptions($people[$i]['person_id']);
+			
+				if($i % 4 == 3) {
+					$html .=  "<div class='person col_right'>" . $link . "</div><div id='clearance' style='clear:both;'></div>";
+				} else {
+					$html .= "<div class='person col_left'>" . $link . $de;
+				}
+			}
+			
+			$html .= $this->_adminAddPersonOptions();
+			
+			$html .= "</div><!-- end of people -->";
+			
+			$html .= $this->_adminPersonOptionsJS();
+			
+			return $html;
+			
+		}
+		else
+		{
+			return NULL;
+		}
+		
+	}
+	
+	
+
+	private function _loadPeople() {
+	
+		$sql = "SELECT *
+		 FROM
+		 `person`
+		ORDER BY
+		`person_id` ASC;";
+	
+		try
+		{
+			$stmt = $this->db->prepare($sql);
+	
+			$stmt->execute();
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt->closeCursor();
+	
+			return $results;
+		}
+		catch ( Exception $e )
+		{
+			die ( $e->getMessage() );
+		}
+	}
+	
 	
 	
 	
@@ -385,6 +488,8 @@ class ConsultSite extends DB_Connect
 		 `article`.`source`,
 		 `article`.`title`,
 		 `article`.`article_url`,
+		 `article`.`person_id`,
+		 `article`.`is_featured`,
 		 `person`.`name`,
 		 `person`.`photo_url`
 		 FROM
@@ -502,6 +607,7 @@ class ConsultSite extends DB_Connect
 			die ( $e->getMessage() );
 		}
 	}
+		
 	
 	
 	private function _loadFeaturedProjects() {
@@ -600,6 +706,44 @@ class ConsultSite extends DB_Connect
 	
 	
 	
+	private function _adminGeneralOptionsJS() 
+	{
+		
+		if ( isset($_SESSION['user']) )
+		{
+		
+			return <<<ADMIN_OPTIONS
+		
+		<script type="text/javascript">
+		$(function() {
+		
+		
+			tinymce.init({
+				selector: "div#greeting",
+				inline: true,
+				plugins: [
+				"autolink lists link charmap",
+				],
+				toolbar: "undo redo | bold italic | charmap | link",
+				menubar: false
+		});
+
+						
+		});
+		</script>
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+			
+					
+	}
+	
+	
+	
+	
 	private function _adminGeneralOptions()
 	{
 		/*
@@ -643,6 +787,80 @@ ADMIN_OPTIONS;
 			return NULL;
 		}
 	}
+	
+	
+	
+	
+	
+	private function _adminClientOptionsJS() {
+	
+		if ( isset($_SESSION['user']) )
+		{
+	
+			return <<<ADMIN_OPTIONS
+	
+		<script type="text/javascript">
+		$(function() {
+	
+			tinymce.init({
+				selector: "div.copy",
+				inline: true,
+				plugins: [
+				"autolink lists link charmap",
+				],
+				toolbar: "undo redo | bold italic | charmap | link",
+				menubar: false
+
+			});
+		
+			tinymce.init({
+				selector: [
+				"div.client", 
+				"div.tagline"
+				],
+				inline: true,
+				plugins: "charmap",
+				toolbar: "undo redo | charmap",
+				menubar: false
+			});	
+		
+			tinymce.init({
+				selector: ".client_info>div.cta",
+				inline: true,
+				plugins: "link",
+				toolbar: "link",
+				menubar: false
+			});	
+		
+			tinymce.init({
+				selector: "div.logo_img",
+				inline: true,
+				plugins: [
+				"image",
+				"responsivefilemanager"
+				],
+				toolbar: "image",
+				menubar: false,
+				external_filemanager_path:"/filemanager/",
+				filemanager_title:"CL Filemanager" ,
+				external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
+			});
+						
+		});
+		</script>
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	
+	
+	}
+	
+	
+	
+
 	
 	
 	
@@ -775,6 +993,90 @@ ADMIN_OPTIONS;
 	
 	
 	
+	
+	
+	private function _adminNewsOptionsJS() {
+
+		if ( isset($_SESSION['user']) )
+		{
+		
+		return <<<ADMIN_OPTIONS
+
+		<script type="text/javascript">
+		$(function() {
+		
+			tinymce.init({
+				selector: ".thumbnail_url",
+				inline: true,
+				plugins: [
+				"image",
+				"responsivefilemanager"
+				],
+				toolbar: "image",
+				menubar: false,
+				external_filemanager_path:"/filemanager/",
+				filemanager_title:"CL Filemanager" ,
+				external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
+			});
+	
+			tinymce.init({
+				selector: ".source",
+				inline: true,
+				plugins: "charmap",
+				toolbar: "undo redo | charmap",
+				menubar: false
+			});
+			tinymce.init({
+				selector: [
+				".title",
+				".copy"
+				],
+				inline: true,
+				plugins: [
+				"autolink lists link charmap anchor",
+				],
+				menubar: false,
+				toolbar: "undo redo | bold italic | charmap | link"
+			});
+	
+				tinymce.init({
+					selector: ".cta",
+					inline: true,
+					plugins: "autolink link",
+					toolbar: "link",
+					menubar: false
+				});
+						
+						
+			tinymce.init({
+				selector: ".pdf",
+				inline: true,
+				plugins: [
+				"autolink link",
+				"responsivefilemanager"
+				],
+				menubar: false,
+				toolbar: "link unlink anchor",
+				image_advtab: true ,
+				external_filemanager_path:"/filemanager/",
+				filemanager_title:"CL Filemanager" ,
+				external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
+			});
+								
+		});
+		</script>
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+		
+		
+	}
+	
+	
+	
 
 	/**
 	 * Generates edit and delete options for a given news ID
@@ -789,72 +1091,7 @@ ADMIN_OPTIONS;
 			$highlightBox = '<input type="checkbox" name="news_featured" id="news_featured" value="1" ' . $checked . ' />';
 			
 			return <<<ADMIN_OPTIONS
-	
-    	<script type="text/javascript">
-	    	$(function() {
-				
-				tinymce.init({
-					selector: ".thumbnail_url",
-					inline: true,
-					plugins: [
-					"image",
-					"responsivefilemanager"
-					],
-					toolbar: "image",
-					menubar: false,
-					external_filemanager_path:"/filemanager/",
-					filemanager_title:"Responsive Filemanager" ,
-					external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
-				});
-
-				tinymce.init({
-				    selector: ".source",
-				    inline: true,
-				    plugins: "charmap",
-				    toolbar: "undo redo | charmap",
-				    menubar: false
-				});
-				tinymce.init({
-				    selector: [
-				    	".title",
-				    	".copy"
-				    ],
-				    inline: true,
-				    plugins: [
-				        "autolink lists link charmap anchor",
-				    ],
-				    menubar: false,
-				    toolbar: "undo redo | bold italic | charmap | link"
-				});
-				
-				tinymce.init({
-					selector: ".cta",
-					inline: true,
-					plugins: "autolink link",
-					toolbar: "link",
-					menubar: false
-				});
-			
-			
-				tinymce.init({
-					selector: ".pdf",
-				    inline: true,
-					plugins: [
-						"autolink link",
-						"responsivefilemanager"
-					],
-				    menubar: false,
-					toolbar: "link unlink anchor",
-					image_advtab: true ,
-					external_filemanager_path:"/filemanager/",
-					filemanager_title:"CL Filemanager" ,
-					external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
-				});
-			
-			});
-		</script>
-			
-			
+						
     <div class="news-admin-options">
     <form action="assets/inc/process.inc.php" method="post">
     	<div class="copy">$copy</div><br/>
@@ -908,6 +1145,274 @@ ADMIN_OPTIONS;
 			return NULL;
 		}
 	}
+	
+	
+	
+	private function _adminThoughtOptionsJS() {
+		if ( isset($_SESSION['user']) )
+		{				
+			return <<<ADMIN_OPTIONS
+		
+    	<script type="text/javascript">
+	    	$(function() {
+		
+				tinymce.init({
+				    selector: ".source",
+				    inline: true,
+				    plugins: "charmap",
+				    toolbar: "undo redo | charmap",
+				    menubar: false
+				});
+			
+				tinymce.init({
+					selector: ".title",
+					inline: true,
+					plugins: "autolink link charmap",
+					toolbar: "undo redo | link | charmap",
+					menubar: false
+				});
+		
+			});
+		</script>
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+		
+	}
+			
+	
+	
+	private function _adminThoughtOptions($id, $person_id, $checked)
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			$highlightBox = '<input type="checkbox" name="article_featured" id="article_featured" value="1" ' . $checked . ' />';
+				
+			$clientDropMenu = $this->_buildPersonsDrop($person_id);
+							
+			return <<<ADMIN_OPTIONS
+		
+    <div class="article-admin-options">
+    <form action="assets/inc/process.inc.php" method="post">
+    <label for="persons">Article Author:</label>
+    	$clientDropMenu<br />
+    	<label for="news_featured">Article Featured on Main Page:</label>
+            $highlightBox
+            <br/>
+		<a class="admin" href="#">Save Edits</a>
+		<input type="hidden" name="article_id" value="$id" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    <form action="confirmArticledelete.php" method="post">
+		<input type="submit" name="delete_thought" value="Delete This Article" id="cancel_thought_delete"/>
+		<input type="hidden" name="article_id" value="$id" />
+    </form>
+    </div><!-- end .article-news-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	
+	
+	
+	
+
+
+	/**
+	 * Generates Add Thought options
+	 *
+	 * @return string the markup for the add options
+	 */
+	private function _adminAddThoughtOptions()
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+	<div class='horizontalRule'></div>
+	
+    <div class="add-thought-admin-options">
+    <form action="assets/inc/process.inc.php" method="post">
+		<input type="submit" name="edit_thought" value="&#43; Add a Another Article" />
+    	<input type="hidden" name="article_id" value="" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    </div><!-- end .add-thought-admin-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	
+	
+	
+	
+	
+	/**
+	 * Builds Persons dropdown menu
+	 *
+	 * @param int $id the person ID
+	 * @return string the html markup for a people dropdown menu
+	 */
+	private function _buildPersonsDrop ($id = NULL)
+	{
+
+		$sql = "SELECT
+                    *
+                FROM `person`";
+	
+		$persons = $this->_runSQL($sql);
+	
+		// error_log(var_dump($positions));
+	
+	
+		$html = '<select id="persons" name="persons[]">';  // Posts as an enumeratable array
+	
+		foreach ( $persons as $person )
+		{
+			//error_log($id);
+			 
+			$html .= '<option value="'
+					. $person['person_id']
+					. '" ';
+			 
+			if ($id != NULL)
+			{
+				if ($id == $person['person_id'])
+				{
+					$html .= 'selected="selected"';
+				}
+			}
+			 
+			 
+			$html .= '>'
+					. $person['name']
+					. '</option>';
+			 
+		}
+	
+		$html .= '</select>';
+	
+		return $html;
+	
+	}
+	
+	
+	
+	private function _adminPersonOptionsJS() {
+		if ( isset($_SESSION['user']) )
+		{
+			$highlightBox = '<input type="checkbox" name="article_featured" id="article_featured" value="1" ' . $checked . ' />';
+	
+			$clientDropMenu = $this->_buildPersonsDrop($person_id);
+	
+			return <<<ADMIN_OPTIONS
+	
+    	<script type="text/javascript">
+	    	$(function() {
+	
+				tinymce.init({
+					selector: ".image",
+					inline: true,
+					plugins: [
+					"image",
+					"responsivefilemanager"
+					],
+					toolbar: "image",
+					menubar: false,
+					external_filemanager_path:"/filemanager/",
+					filemanager_title:"CL Filemanager" ,
+					external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}
+				});
+		
+				tinymce.init({
+					selector: ".name",
+					inline: true,
+					plugins: "charmap",
+					toolbar: "undo redo | charmap",
+					menubar: false
+				});
+	
+			});
+		</script>
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	
+	}
+	
+	
+	
+	private function _adminPersonOptions($id)
+	{
+		if ( isset($_SESSION['user']) )
+		{
+				
+			return <<<ADMIN_OPTIONS
+	
+    <div class="person-admin-options">
+    <form action="assets/inc/process.inc.php" method="post">
+		<a class="admin" href="#">Save Edits</a>
+		<input type="hidden" name="person_id" value="$id" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    <form action="confirmPersondelete.php" method="post">
+		<input type="submit" name="delete_person" value="Delete This Person" id="cancel_person_delete"/>
+		<input type="hidden" name="person_id" value="$id" />
+    </form>
+    </div><!-- end .person-news-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	
+	
+	
+	
+
+	/**
+	 * Generates Add Person options
+	 *
+	 * @return string the markup for the add options
+	 */
+	private function _adminAddPersonOptions()
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+	<div class='horizontalRule'></div>
+	
+    <div class="add-person-admin-options">
+    <form action="assets/inc/process.inc.php" method="post">
+		<input type="submit" name="edit_person" value="&#43; Add a Another Person" />
+    	<input type="hidden" name="person_id" value="" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    </div><!-- end .add-person-admin-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+	
+	
 	
 	
 

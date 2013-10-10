@@ -685,12 +685,16 @@ CONFIRM_DELETE;
 						"#image_url"
 					], 
 					plugins: [
-					    "jbimages"
+						"image",
+						"responsivefilemanager"
 					],
-					toolbar: "jbimages",
-					menubar: false,
-					relative_urls: false
+					toolbar: "image",
+					 menubar: false,
+					external_filemanager_path:"/filemanager/",
+					filemanager_title:"CL Filemanager" ,
+					external_plugins: { "filemanager" : "/filemanager/plugin.min.js"}			
 				});
+				
 			});
 		</script>
          
@@ -1214,6 +1218,207 @@ CONFIRM_DELETE;
     
     
     
+    
+
+    public function saveThought()
+    {
+    	/*
+    	 * Exit if the action isn't set properly
+    	*/
+    	if ( $_POST['action']!='edit_thought' )
+    	{
+    		return "The method saveThought was accessed incorrectly";
+    	}
+    
+    	/*
+    	 * Escape data from the form
+    	*/
+    	if ( empty($_POST['article_id'])) {
+    		 
+    		$source = 'Article Source';
+    		$title = 'Article Title';
+    		$article_url = '';
+    		$person_id = 1;
+    		$is_featured = 0;
+    
+    		$id = 0;
+    
+    	} else {
+    
+    		$source = $_POST['source'];
+    		$title = $_POST['title'];
+    		$article_url = $_POST['article_url'];
+    		$person_id = (int) $_POST['person_id'];
+    		$is_featured = (int) $_POST['is_featured'];
+    		
+    		$id = (int) $_POST['article_id'];
+    	}
+    
+    
+    	// error_log("client_id = " . $id);
+    
+    	/*
+    	 * If no greeting ID passed, create a new greeting
+    	*/
+    	if ( empty($_POST['article_id']) )
+    	{
+    
+    		$sql = "INSERT INTO `article`
+    				(`source`, `title`, `article_url`, `person_id`, `is_featured`)
+    				VALUES
+    				(:source, :title, :article_url, :person_id, :is_featured);";
+    	}
+    
+    	/*
+    	 * Update the greeting if it's being edited
+    	*/
+    	else
+    	{
+    		/*
+    		 * Cast the greeting ID as an integer for security
+    		*/
+    		$sql = "UPDATE `article`
+    		SET
+    		`source`=:source, `title`=:title, `person_id`=:person_id, 
+    		`article_url`=:article_url, `is_featured`=:is_featured
+    		WHERE `id`=$id";
+    	}
+    
+    	/*
+    	 * Execute the create or edit query after binding the data
+    	*/
+    	try
+    	{
+    		 
+    		error_log($sql);
+    		 
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(":source", $source, PDO::PARAM_STR);
+    		$stmt->bindParam(":title", $title, PDO::PARAM_STR);
+    		$stmt->bindParam(":article_url", $article_url, PDO::PARAM_STR);
+    		$stmt->bindParam(":person_id", $person_id, PDO::PARAM_STR);
+    		$stmt->bindParam(":is_featured", $is_featured, PDO::PARAM_STR);
+    		$stmt->execute();
+    		$stmt->closeCursor();
+    		/*
+    		 * Returns the ID of the client
+    		*/
+    		// return $this->db->lastInsertId();
+    		 
+    		if ($id > 0) {
+    			$article_id = $id;
+    		} else {
+    			$article_id = $this->db->lastInsertId();
+    		}
+    		 
+    		//  error_log($client_id, 0);
+    		 
+    		return $article_id;
+    		 
+    	}
+    	catch ( Exception $e )
+    	{
+    		return $e->getMessage();
+    	}
+    }
+    
+    
+    
+    
+    public function confirmThoughtDelete($id)
+    {
+    	/*
+    	 * Make sure an ID was passed
+    	*/
+    	if ( empty($id) ) { return NULL; }
+    
+    	/*
+    	 * Make sure the ID is an integer
+    	*/
+    	$id = preg_replace('/[^0-9]/', '', $id);
+    
+    	/*
+    	 * If the confirmation form was submitted and the form
+    	* has a valid token, check the form submission
+    	*/
+    	if ( isset($_POST['confirm_thought_delete'])
+    			&& $_POST['token']==$_SESSION['token'] )
+    	{
+    		/*
+    		 * If the deletion is confirmed, remove the client
+    		* from the database
+    		*/
+    		if ( $_POST['confirm_thought_delete']=="Confirm Delete" )
+    		{
+    			$sql = "DELETE FROM `article`
+    			WHERE `id`=:id
+                  LIMIT 1";
+    			try
+    			{
+    				$stmt = $this->db->prepare($sql);
+    				$stmt->bindParam(
+    						":id",
+    						$id,
+    						PDO::PARAM_INT
+    				);
+    				$stmt->execute();
+    				$stmt->closeCursor();
+    				//	header("Location: ./");
+    				return;
+    			}
+    			catch ( Exception $e )
+    			{
+    				return $e->getMessage();
+    			}
+    		}
+    
+    		/*
+    		 * If not confirmed, sends the user to the main view
+    		*/
+    		else
+    		{
+    			echo "didn't work";
+    			//	header("Location: ./");
+    			return;
+    		}
+    	}
+    
+    	/*
+    	 * If the confirmation form hasn't been submitted, display it
+    	*/
+    	$thought = $this->_loadThoughtById($id);
+    
+    
+    	$articleTitle = strip_tags($thought[0]['title']);
+    	$article_id = $thought[0]['id'];
+    
+    
+    	//	error_log("client = " . implode(",", $client));
+    
+    	return <<<CONFIRM_DELETE
+    
+    <form class="thought_delete" action="confirmdelete.php" method="post">
+        <h2>
+            Are you sure you want to delete "$articleTitle"?
+        </h2>
+        <p>There is <strong>no undo</strong> if you continue.</p>
+        <p>
+            <input type="submit" name="confirm_thought_delete"
+                  value="Confirm Delete" />
+            <input type="submit" name="confirm_thought_delete"
+                  value="Cancel" />
+            <input type="hidden" name="article_id"
+                  value="$article_id" />
+            <input type="hidden" name="token"
+                  value="$_SESSION[token]" />
+        </p>
+    </form>
+CONFIRM_DELETE;
+    }
+    
+    
+    
+    
 
 
     private function _loadProjectById($id) {
@@ -1260,6 +1465,39 @@ CONFIRM_DELETE;
     	$sql = "SELECT *
 		 FROM
 		 `news_item`
+		 WHERE
+		 `id`=:id
+    	LIMIT 1;";
+    
+    	try
+    	{
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(
+    				":id",
+    				$id,
+    				PDO::PARAM_INT
+    		);
+    		$stmt->execute();
+    		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    		$stmt->closeCursor();
+    
+    		return $results;
+    	}
+    	catch ( Exception $e )
+    	{
+    		die ( $e->getMessage() );
+    	}
+    }
+    
+    
+    
+    
+
+    private function _loadThoughtById($id) {
+    
+    	$sql = "SELECT *
+		 FROM
+		 `article`
 		 WHERE
 		 `id`=:id
     	LIMIT 1;";
