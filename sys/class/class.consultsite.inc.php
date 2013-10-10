@@ -98,7 +98,7 @@ class ConsultSite extends DB_Connect
 		
 		$html .= "<div id='featured_projects'>";
 		
-		$html .= "<div class='featured_bar'><div class='title'>New Projects</div><div class='cta'><a href='#'>View All</a></div></div>";
+		$html .= "<div class='featured_bar'><div class='title'>New Projects</div><div class='cta'>View All</div></div>";
 		
 		$featured = $this->_loadFeaturedProjects();
 		

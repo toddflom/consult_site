@@ -410,6 +410,16 @@ jQuery(function($){
 		$(this).siblings('#header_nav').children().removeClass('active');
 	});
 	
+
+	
+	function loadLandingJS() {
+		$("#featured_projects>.featured_bar>div.cta").click(function(event) {
+			event.preventDefault();
+			$('#header_nav').children().removeClass('active');
+			loadProjectsPage();
+		});
+	}
+	
 	
 	
 	function loadLandingPage() {
@@ -424,6 +434,7 @@ jQuery(function($){
             		$( "#modal_background").remove();
             		$('#content').html(data); 
             		shouldLoadEditor("div#greeting", 'full');
+            		loadLandingJS();
                 },
             error: function(msg) {
                     modal.append(msg);

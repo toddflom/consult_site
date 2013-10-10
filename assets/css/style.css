@@ -407,6 +407,7 @@ a.view_pdf {
 	background-color: #464646;
 	padding:0 15px;
 	color: #000000;
+	cursor: pointer;
 }
 
 #featured_projects>.featured_bar>.cta a,
