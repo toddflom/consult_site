@@ -108,7 +108,7 @@ input[type="submit"] {
 .modal-window h2 {
 /*	float:left; */
 	height: 46px;
-    line-height: 46px;
+   /*  line-height: 46px;  */
     margin: 0 0 8px 15px;
     vertical-align: middle;
    /*  color:#404040;  */
@@ -188,6 +188,16 @@ div.add-client-admin-options {
 	margin-top:15px;
 }
 
+
+.news-admin-options {
+	font-family: Arial,Helvetica,sans-serif;
+	color: #ACACAC;
+	font-size: 90%;
+}
+
+.news-admin-options .admin {
+	margin-top:15px;
+}
 
 
 

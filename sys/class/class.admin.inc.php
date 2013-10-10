@@ -59,7 +59,7 @@ class Admin extends DB_Connect
     	return true;
     	
     	
-    	/*TODO reenable login authorization
+    	/* TODO reenable login authorization
         //  Fails if the proper action was not submitted
 
         if ( $_POST['action']!='user_login' )
@@ -163,7 +163,7 @@ class Admin extends DB_Connect
        	
         	
         }     
-        */  
+          */
 
     }
     
@@ -1056,7 +1056,7 @@ CONFIRM_DELETE;
     				(`source`, `is_featured`, `article_title`, `copy`, `article_url`, 
     				`pdf_url`, `thumbnail_url`)
     				VALUES
-    				(:logo_url, :is_featured, :article_title, :copy, :article_url, 
+    				(:source, :is_featured, :article_title, :copy, :article_url, 
     				:pdf_url, :thumbnail_url);";
     	}
     
@@ -1146,7 +1146,7 @@ CONFIRM_DELETE;
     		{
     			$sql = "DELETE FROM `news_item`
     			WHERE `id`=:id
-                            LIMIT 1";
+                  LIMIT 1";
     			try
     			{
     				$stmt = $this->db->prepare($sql);

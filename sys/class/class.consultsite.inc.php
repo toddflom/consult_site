@@ -324,8 +324,10 @@ class ConsultSite extends DB_Connect
 	
 		}
 	
+		$html .= $this->_adminAddNewsOptions();
+		
 		$html .= "</div><!-- end of news -->";
-	
+			
 		return $html;
 	}
 	
@@ -864,7 +866,7 @@ ADMIN_OPTIONS;
 		<input type="hidden" name="token" value="$_SESSION[token]" />
     </form>
     <form action="confirmNewsdelete.php" method="post">
-		<input type="submit" name="delete_news" value="Delete This News Article" />
+		<input type="submit" name="delete_news" value="Delete This News Article" id="cancel_news_delete"/>
 		<input type="hidden" name="news_id" value="$id" />
     </form>
     </div><!-- end .client-news-options -->
@@ -876,6 +878,36 @@ ADMIN_OPTIONS;
 		}
 	}
 	
+	
+	
+
+	/**
+	 * Generates Add News options
+	 *
+	 * @return string the markup for the add options
+	 */
+	private function _adminAddNewsOptions()
+	{
+		if ( isset($_SESSION['user']) )
+		{
+			return <<<ADMIN_OPTIONS
+	
+	<div class='horizontalRule'></div>
+		
+    <div class="add-news-admin-options">
+    <form action="assets/inc/process.inc.php" method="post">
+		<input type="submit" name="edit_news" value="&#43; Add a News Article" />
+    	<input type="hidden" name="news_id" value="" />
+		<input type="hidden" name="token" value="$_SESSION[token]" />
+    </form>
+    </div><!-- end .add-news-admin-options -->
+ADMIN_OPTIONS;
+		}
+		else
+		{
+			return NULL;
+		}
+	}
 	
 	
 

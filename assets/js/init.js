@@ -886,7 +886,7 @@ jQuery(function($){
 	
 	
 	
-	$(".edit-form .cancel_project_edit, .edit-form #cancel_project_delete").live("click", function(event) {
+	$(".edit-form .cancel_project_edit, .edit-form #cancel_project_delete, .edit-form #cancel_news_delete").live("click", function(event) {
 		event.preventDefault();
 		fx.boxout();
 	});
@@ -1081,7 +1081,7 @@ jQuery(function($){
 	
 	
 	
-	$(".client-news-options>form>.admin, .add-news-admin-options>form>input[type=submit]").live("click", function(event){
+	$(".news-admin-options>form>.admin, .add-news-admin-options>form>input[type=submit]").live("click", function(event){
 
 		event.preventDefault();
 		// console.log($(this).parent().parent().siblings('.logo_img').find('.logo').attr('src'));
@@ -1134,7 +1134,7 @@ jQuery(function($){
             success: function(data){
             	console.log("SUCCESS!!");
             	if (reload) {
-            		addNewProject(data);
+            		addNewNews(data);
             	}
             },
             error: function(msg){
@@ -1228,11 +1228,11 @@ jQuery(function($){
         remove = false;
 	
 	    // If this is the deletion form, appends an action
-	    if ( $(this).attr("name")=="confirm_client_delete" )
+	    if ( $(this).attr("name")=="confirm_news_delete" )
 	    {
 	        // Adds necessary info to the query string
-	        formData += "&action=confirm_client_delete"
-	            + "&confirm_client_delete="+submitVal;
+	        formData += "&action=confirm_news_delete"
+	            + "&confirm_news_delete="+submitVal;
 
 		     // If the client is really being deleted, sets
 		     // a flag to remove it from the markup
@@ -1279,7 +1279,32 @@ jQuery(function($){
 	}
 	
 	
-	
+	function addNewNews(id){
+		
+		var news_id = id;
+		// Sets the action for the form submission
+        var action = "save_news";
+       
+        
+        var data = "&news_id="+ news_id;
+        
+        $.ajax({
+            type: "POST",
+            url: processFile,
+            data: "action="+action + data,
+            success: function(data){
+            	console.log("SUCCESS!!");
+            	
+            	// fx.boxout();
+                
+                loadNewsPage();
+            },
+            error: function(msg){
+                alert(msg);
+            }
+        });
+
+	}
 	
 
 	
