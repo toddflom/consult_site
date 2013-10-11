@@ -34,29 +34,6 @@ jQuery(function($){
             }
             
         },
-        
-		// Checks for a modal search window and returns it, or
-        // else creates a new one and returns that
-        "initSearchModal" : function() {
-            // If no elements are matched, the length
-            // property will be 0
-            if ( $(".modal-search-window").length==0 )
-            {
-                // Creates a div, adds a class, and
-                // appends it to the body tag
-                return $("<div>")
-                        .hide()
-                        .addClass("modal-search-window")
-                        .appendTo(".aspectwrapper"); //"body");
-            }
-            else
-            {
-                // Returns the modal window if one
-                // already exists in the DOM
-                return $(".modal-search-window");
-            }
-            
-        },
 		
      // Adds the window to the markup and fades it in
         "boxin" : function(data, modal, top) {
@@ -117,160 +94,42 @@ jQuery(function($){
 		            }
 		        );
 	        }
-            if ($(".modal-search-window").length) {
-	            $(".modal-search-window")
-		            .fadeOut("fast", function() {
-		                $(this).remove();
-		            }
-		        );
-	        }
 	    },
 	    
 
-	    // Adds a new step to the markup after saving
-        "addstep" : function(data, formData){
+	    // Updates Thought image and name in the markup after saving
+        "updateThought" : function(data, formData){
 	    	// Converts the query string to an object
-	        var entry = fx.deserialize(formData);
+
+        	// get rid of newlines, returns
+        	formData = formData.replace(/(\r\n|\n|\r)/gm,"");
+        	// remove whitespaces at front
+        	formData = formData.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+        	
+	      //  console.log("formData = " + formData);
+
+        	var entry = fx.deserialize(formData);
+	       // console.log(entry.article_id + ". " + entry.name + ". " + entry.photo_url);
 	        
-	        //   console.log(entry.ordering_number + ". " + entry.step_name);
-	        
-	        var x = parseInt(data,10); // have to do this to get rid of the leading space, don't konw why it has a leading space
-	        
-	        // Adds new li and step link
-	        $("<li>")
-	       	.append('<strong>' + entry.ordering_number 
-	        			+ '.</strong> <a href="view.php?step_id=' 
-	        			+ x + '">' + entry.step_name + "</a>")
-	        	.insertAfter($('.steps>li:last'));
+	       var node =  $('.article-admin-options input[value=' + entry.article_id + ']');
+	       
+	       var sibs = $(node).parent().parent();
+	       
+	       $(sibs).siblings('.info').find('.name').html(entry.name);
+	       $(sibs).siblings('.image').find('img').attr('src', entry.photo_url);
 	       
         },
-        
-        
-        // Removes a step from the markup after deletion
-        "removestep" : function()
-        {
-        	// Removes any step with the class "active"
-            $(".steps .active")
-                .fadeOut("fast", function(){
-                        $(this).remove();
-                    });
-        },
-
-        
-        
-
-	    // Adds a new step to the markup after saving
-        "addposition" : function(data, formData){
-	    	// Converts the query string to an object
-	        var entry = fx.deserialize(formData);
-	        
-	        console.log(entry);
-	        
-	        var x = parseInt(data,10); // have to do this to get rid of the leading space, don't konw why it has a leading space
-	        
-	        // Adds new li and step link
-	        // *TODO we have to figure out some way to get the flippin color 
-	        $("<li>")
-	        .append('<div style="width:50px;height:70px;background-color:#E7BB20">'
-	        		+ '<a href="positionview.php?position_id=' + x + '">'
-	        		+ entry.position_acronym + '</a>'
-	        		+ '</div><div>'
-	        		+ '<a href="positionview.php?position_id=' + x + '">'
-	        		+ entry.position_name + '</a></div>')
-	        			
-	        	.insertAfter($('.positions>li:last'));
-        },
-        
-        
-        // Removes a step from the markup after deletion
-        "removeposition" : function()
-        {
-        	// Removes any position with the class "active"
-            $(".positions .active")
-                .fadeOut("fast", function(){
-                        $(this).remove();
-                    });
-        },
-        
-        
-        
-
-	    // Adds a new definition to the markup after saving
-        "adddefinition" : function(data, formData){
-	    	// Converts the query string to an object
-	        var entry = fx.deserialize(formData);
-	        
-	       // console.log(entry);
-	        
-	        var x = parseInt(data,10); // have to do this to get rid of the leading space, don't konw why it has a leading space
-	        
-	        // Adds new li and step link
-	        $("<li>")
-	        .append('<div>'
-	        		+ '<a href="glossaryview.php?definition_id=' + x + '">'
-	        		+ entry.definition_name + '</a></div>'
-	        		+ '<div>'
-	        		+ entry.definition_description + '</div>')
-	        	.insertAfter($('.glossary>li:last'));
-        },
-        
-        
-        // Removes a definition from the markup after deletion
-        "removedefinition" : function()
-        {
-        	// Removes any definition with the class "active"
-            $(".glossary .active")
-                .fadeOut("fast", function(){
-                        $(this).parent().remove();
-                    });
-        },
-        
-        
-        
-        
-
-	    // Adds a new department to the markup after saving
-        "adddepartment" : function(data, formData){
-	    	// Converts the query string to an object
-	        var entry = fx.deserialize(formData);
-	        
-	        console.log(entry);
-	        
-	        var x = parseInt(data,10); // have to do this to get rid of the leading space, don't konw why it has a leading space
-	        
-	        // Adds new li and step link
-	        $("<li>")
-	        .append('<div>'
-	        		+ '<a href="departmentview.php?department_id=' + x + '">'
-	        		+ entry.department_name + '</a></div>'
-	        		+ '<div>'
-	        		+ entry.department_color + '</div>')
-	        	.insertAfter($('.departments>li:last'));
-        },
-        
-        
-        // Removes a department from the markup after deletion
-        "removedepartment" : function()
-        {
-        	// Removes any position with the class "active"
-            $(".departments .active")
-                .fadeOut("fast", function(){
-                        $(this).parent().remove();
-                    });
-        },
-        
-        
-        
+       
         
         // Deserializes the query string and returns
         // an event object
         "deserialize" : function(str){
         	 // Breaks apart each name-value pair
             var data = str.split("&"),
-
+            
             // Declares variables for use in the loop
                 pairs=[], entry={}, key, val;
-
+            
             // Loops through each name-value pair
             for ( x in data )
             {
@@ -279,9 +138,11 @@ jQuery(function($){
 
                 // The first element is the name
                 key = pairs[0];
+                // console.log("key = " + key);
 
                 // Second element is the value
                 val = pairs[1];
+                // console.log("val = " + val);
 
                 // Reverses the URL encoding and stores
                 // each value as an object property
@@ -298,20 +159,7 @@ jQuery(function($){
             // Converts any encoded entities back
             return decodeURIComponent(converted);
          },
-    
-        
-        "setPhase" : function(str) {
-        	$('#phase_title').html(str + " phase");
-        },
-
-         "setStepNum" : function(str) {
-	     	$('#map_container .map_pos_indicator').html(str);
-	    },
-        
-        "setSearchResults" :function(results) {
-        	$('.modal-search-window #search_contents').html(results);
-        }
-		
+    		
 	};
 	
     
@@ -1250,6 +1098,18 @@ jQuery(function($){
             data: "action="+action+id + data,
             success: function(data){
             	console.log("SUCCESS!!");
+            
+            	
+            	console.log("init.js data = " + data);
+           	
+            	
+            	fx.updateThought("", data);
+            	
+            	
+
+            	
+            	
+            	
             	if (reload) {
             		addNewThought(data);
             	}
@@ -1298,8 +1158,6 @@ jQuery(function($){
 	            success: function(data){
 	                // Hides the form
 	            	var form = $(data).hide();
-	            	
-	            //	console.log(data);
 
 	                // Make sure the modal window exists
 	               var  modal = fx.initModal()
@@ -1447,18 +1305,11 @@ jQuery(function($){
 		
 		$(this).text('SAVED');
 
-		var node = $(this).parent().parent().siblings('.info');
+		var node = $(this).parent().parent();
 		
 		// Can't use tinymce.getContent() here because of repeating regions
-		var source = "&source="+encodeURIComponent($(node).children('.source').html());
-        var title = "&title="+encodeURIComponent($(node).children('.title').find('a').html());
-
-	     // strip out the text and url from bullshit that TinyMCE adds
-        var url = $(node).children('.title').find('a').attr('href'); // the url of the link
-        var article_url = "&article_url="+encodeURIComponent(url);
-
-		var person_id = "&person_id="+encodeURIComponent($(this).siblings('#persons').val());
-		var is_featured = "&is_featured="+encodeURIComponent(($(this).siblings('#article_featured').is(':checked') > 0 ? 1 : 0));
+		var photo_url = "&photo_url="+encodeURIComponent($(node).siblings('.image').find('img').attr('src'));
+		var name = "&name="+encodeURIComponent($(node).siblings('.name').html());
         
 		// Sets the action for the form submission
         var action = $(event.target).attr("name") || "edit_person";
@@ -1473,7 +1324,7 @@ jQuery(function($){
         // Creates an additional param for the ID if set
         id = ( id!=undefined ) ? "&person_id="+id : "";
         
-        var data = source + title + article_url + person_id + is_featured;
+        var data = photo_url + name;
        
       //  console.log(data);
 		
@@ -1532,7 +1383,7 @@ jQuery(function($){
 	                // Hides the form
 	            	var form = $(data).hide();
 	            	
-	            //	console.log(data);
+	            	console.log(data);
 
 	                // Make sure the modal window exists
 	               var  modal = fx.initModal()

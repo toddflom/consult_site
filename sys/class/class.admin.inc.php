@@ -54,12 +54,8 @@ class Admin extends DB_Connect
      */
     public function processLoginForm()
     {
+   	
     	
-    	
-    	return true;
-    	
-    	
-    	/* TODO reenable login authorization
         //  Fails if the proper action was not submitted
 
         if ( $_POST['action']!='user_login' )
@@ -163,7 +159,6 @@ class Admin extends DB_Connect
        	
         	
         }     
-          */
 
     }
     
@@ -1307,13 +1302,23 @@ CONFIRM_DELETE;
     		 
     		if ($id > 0) {
     			$article_id = $id;
+    			
+    			$person = $this->_loadPersonById($person_id);
+    			
+    			$str = "article_id=" . $article_id . "&name=" . $person[0]['name'] . "&photo_url=" . $person[0]['photo_url'];
+    			
+    			return $str;
+    			
     		} else {
     			$article_id = $this->db->lastInsertId();
+    			return $article_id;
+    			 
     		}
     		 
     		//  error_log($client_id, 0);
-    		 
-    		return $article_id;
+    		
+   		 
+//    		return $article_id;
     		 
     	}
     	catch ( Exception $e )
@@ -1409,6 +1414,194 @@ CONFIRM_DELETE;
                   value="Cancel" />
             <input type="hidden" name="article_id"
                   value="$article_id" />
+            <input type="hidden" name="token"
+                  value="$_SESSION[token]" />
+        </p>
+    </form>
+CONFIRM_DELETE;
+    }
+    
+    
+    
+    
+    
+    public function savePerson()
+    {
+    	/*
+    	 * Exit if the action isn't set properly
+    	*/
+    	if ( $_POST['action']!='edit_person' )
+    	{
+    		return "The method savePerson was accessed incorrectly";
+    	}
+    
+    	/*
+    	 * Escape data from the form
+    	*/
+    	if ( empty($_POST['person_id'])) {
+    		 
+    		$name = 'New Person';
+    		$photo_url = '';
+    		
+    		$id = 0;
+    
+    	} else {
+    
+    		$name = $_POST['name'];
+    		$photo_url = $_POST['photo_url'];
+    
+    		$id = (int) $_POST['person_id'];
+    	}
+    
+    
+    	/*
+    	 * If no greeting ID passed, create a new greeting
+    	*/
+    	if ( empty($_POST['person_id']) )
+    	{
+    
+    		$sql = "INSERT INTO `person`
+    				(`name`, `photo_url`)
+    				VALUES
+    				(:name, :photo_url);";
+    	}
+    
+    	/*
+    	 * Update the person if it's being edited
+    	*/
+    	else
+    	{
+    		/*
+    		 * Cast the person ID as an integer for security
+    		*/
+    		$sql = "UPDATE `person`
+    		SET
+    		`name`=:name, `photo_url`=:photo_url
+    		WHERE `person_id`=$id";
+    	}
+    
+    	/*
+    	 * Execute the create or edit query after binding the data
+    	*/
+    	try
+    	{
+    		 
+    		error_log($sql);
+    		 
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(":name", $name, PDO::PARAM_STR);
+    		$stmt->bindParam(":photo_url", $photo_url, PDO::PARAM_STR);
+    		$stmt->execute();
+    		$stmt->closeCursor();
+    		/*
+    		 * Returns the ID of the client
+    		*/
+    		// return $this->db->lastInsertId();
+    		 
+    		if ($id > 0) {
+    			$person_id = $id;
+    		} else {
+    			$person_id = $this->db->lastInsertId();
+    		}
+    		 
+    		//  error_log($client_id, 0);
+    		 
+    		return $person_id;
+    		 
+    	}
+    	catch ( Exception $e )
+    	{
+    		return $e->getMessage();
+    	}
+    }
+    
+    
+    
+    
+    public function confirmPersonDelete($id)
+    {
+    	/*
+    	 * Make sure an ID was passed
+    	*/
+    	if ( empty($id) ) { return NULL; }
+    
+    	/*
+    	 * Make sure the ID is an integer
+    	*/
+    	$id = preg_replace('/[^0-9]/', '', $id);
+    
+    	/*
+    	 * If the confirmation form was submitted and the form
+    	* has a valid token, check the form submission
+    	*/
+    	if ( isset($_POST['confirm_person_delete'])
+    			&& $_POST['token']==$_SESSION['token'] )
+    	{
+    		/*
+    		 * If the deletion is confirmed, remove the person
+    		* from the database
+    		*/
+    		if ( $_POST['confirm_person_delete']=="Confirm Delete" )
+    		{
+    			$sql = "DELETE FROM `person`
+    			WHERE `person_id`=:id
+                  LIMIT 1";
+    			try
+    			{
+    				$stmt = $this->db->prepare($sql);
+    				$stmt->bindParam(
+    						":id",
+    						$id,
+    						PDO::PARAM_INT
+    				);
+    				$stmt->execute();
+    				$stmt->closeCursor();
+    				//	header("Location: ./");
+    				return;
+    			}
+    			catch ( Exception $e )
+    			{
+    				return $e->getMessage();
+    			}
+    		}
+    
+    		/*
+    		 * If not confirmed, sends the user to the main view
+    		*/
+    		else
+    		{
+    			echo "didn't work";
+    			//	header("Location: ./");
+    			return;
+    		}
+    	}
+    
+    	/*
+    	 * If the confirmation form hasn't been submitted, display it
+    	*/
+    	$person = $this->_loadPersonById($id);
+    
+    
+    	$name = strip_tags($person[0]['name']);
+    	$person_id = $person[0]['person_id'];
+    
+    
+    	error_log("person = " . implode(",", $person));
+    
+    	return <<<CONFIRM_DELETE
+    
+    <form class="person_delete" action="" method="post">
+        <h2>
+            Are you sure you want to delete "$name"?
+        </h2>
+        <p>There is <strong>no undo</strong> if you continue.</p>
+        <p>
+            <input type="submit" name="confirm_person_delete"
+                  value="Confirm Delete" />
+            <input type="submit" name="confirm_person_delete"
+                  value="Cancel" />
+            <input type="hidden" name="person_id"
+                  value="$person_id" />
             <input type="hidden" name="token"
                   value="$_SESSION[token]" />
         </p>
@@ -1521,6 +1714,41 @@ CONFIRM_DELETE;
     		die ( $e->getMessage() );
     	}
     }
+    
+    
+    
+    
+
+
+    private function _loadPersonById($id) {
+    
+    	$sql = "SELECT *
+		 FROM
+		 `person`
+		 WHERE
+		 `person_id`=:id
+    	LIMIT 1;";
+    
+    	try
+    	{
+    		$stmt = $this->db->prepare($sql);
+    		$stmt->bindParam(
+    				":id",
+    				$id,
+    				PDO::PARAM_INT
+    		);
+    		$stmt->execute();
+    		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    		$stmt->closeCursor();
+    
+    		return $results;
+    	}
+    	catch ( Exception $e )
+    	{
+    		die ( $e->getMessage() );
+    	}
+    }
+    
     
     
     

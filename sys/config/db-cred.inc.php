@@ -25,10 +25,9 @@ $C['DB_PASS'] = 'ClyncH13!';
 $C['DB_NAME'] = 'ConsultSites_master';
 
 /*
- * The path to the site for document uploads
+ * The name of the subdirectory this version is located within
 */
-$C['UPLOAD_PATH'] = "/Users/todd.flom/Desktop/Sites/Consultant Site/consult_site/imgupload"; // "/var/www/cl_process/public/";
-
+$C['SUB_DIRECTORY_NAME'] = "ConsultSite_master"; // 
 
 ?>
 

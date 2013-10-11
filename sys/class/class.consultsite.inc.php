@@ -421,9 +421,7 @@ class ConsultSite extends DB_Connect
 			for ($i = 0; $i < $tot_people; $i++) {
 			
 				$link = "<div class='image'><img class='photo' src='" . $people[$i]['photo_url'] . "' /></div>"
-						. "<div class='info'>"
-						. "<div class='name'>" .  $people[$i]['name'] . "</div>"
-						. "</div>";
+						. "<div class='name'>" .  $people[$i]['name'] . "</div>";
 			
 				// error_log("i = " . $i . " mod 3 = " . $i % 3);
 			
@@ -1310,9 +1308,8 @@ ADMIN_OPTIONS;
 	private function _adminPersonOptionsJS() {
 		if ( isset($_SESSION['user']) )
 		{
-			$highlightBox = '<input type="checkbox" name="article_featured" id="article_featured" value="1" ' . $checked . ' />';
-	
-			$clientDropMenu = $this->_buildPersonsDrop($person_id);
+			
+			$dir = SUB_DIRECTORY_NAME;
 	
 			return <<<ADMIN_OPTIONS
 	

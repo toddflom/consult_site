@@ -102,6 +102,18 @@ $actions = array(
 				'object' => 'Admin',
 				'method' => 'confirmThoughtDelete'
 		),
+		'edit_person' => array(
+				'object' => 'Admin',
+				'method' => 'savePerson'
+		),
+		'delete_person' => array(
+						'object' => 'Admin',
+						'method' => 'confirmPersonDelete'
+		),
+		'confirm_person_delete' => array(
+						'object' => 'Admin',
+						'method' => 'confirmPersonDelete'
+		)
 		
 );
 
@@ -140,6 +152,10 @@ if ( isset($actions[$_POST['action']]) )
 	else if (isset($_POST['article_id']))
 	{
 		$id = (int)$_POST['article_id'];
+	}
+	else if (isset($_POST['person_id']))
+	{
+		$id = (int)$_POST['person_id'];
 	}
 	else { $id = NULL; }
 	
